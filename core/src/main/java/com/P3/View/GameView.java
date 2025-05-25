@@ -118,12 +118,6 @@ public class GameView implements Screen, InputProcessor {
 
     }
 
-    public void moveCursorTo(Vector2 worldPosition) {
-        Vector3 screenPos = new Vector3(worldPosition.x, worldPosition.y, 0);
-        camera.project(screenPos);
-        Gdx.input.setCursorPosition((int) screenPos.x, Gdx.graphics.getHeight() - (int) screenPos.y);
-    }
-
     public Vector2 worldToScreen(Vector2 worldPos) {
         Vector3 projected = new Vector3(worldPos.x, worldPos.y, 0);
         camera.project(projected);
@@ -295,6 +289,7 @@ public class GameView implements Screen, InputProcessor {
     }
 
     private void createPauseMenu(Skin skin) {
+        Main.setCustomCursor("m.png");
         pauseStage = new Stage(new ScreenViewport());
         Table pauseTable = new Table();
         if (App.loggedInUser.isPlaySFX())
@@ -479,6 +474,7 @@ public class GameView implements Screen, InputProcessor {
     }
 
     private void createRealPauseMenu(Skin skin) {
+        Main.setCustomCursor("m2.png");
         realPauseMenuStage = new Stage(new ScreenViewport());
         Table pauseTable = new Table();
         if (App.loggedInUser.isPlaySFX())
@@ -611,6 +607,7 @@ public class GameView implements Screen, InputProcessor {
     }
 
     private void createLoserMenu(Skin skin) {
+        Main.setCustomCursor("m2.png");
         loseStage = new Stage(new ScreenViewport());
         Table pauseTable = new Table();
         if (App.loggedInUser.isPlaySFX())
@@ -679,6 +676,7 @@ public class GameView implements Screen, InputProcessor {
     }
 
     private void createWinnerMenu(Skin skin) {
+        Main.setCustomCursor("m2.png");
         winStage = new Stage(new ScreenViewport());
         Table pauseTable = new Table();
         winSound.play();

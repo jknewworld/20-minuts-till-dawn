@@ -169,6 +169,7 @@ public class GameController {
             }
 
             Monster nearest = null;
+            EnemyBullet nearestBullet = null;
             float minDistance = Float.MAX_VALUE;
 
             for (Monster e : monsters) {
@@ -182,12 +183,37 @@ public class GameController {
                 }
             }
 
-            if (isAutoAimEnabled && nearest != null) {
-                Vector2 enemyPos = new Vector2(-nearest.getX() + playerController.getPlayer().getPosX(), nearest.getY()-playerController.getPlayer().getPosY());
-                Vector2 enemyScreenPos = view.worldToScreen(enemyPos);
-                Gdx.input.setCursorPosition((int) enemyScreenPos.x, Gdx.graphics.getHeight() - (int) enemyScreenPos.y);
+            for (EnemyBullet e : enemyBullets) {
+                float dx = Gdx.graphics.getWidth() / 2f - e.getX();
+                float dy = Gdx.graphics.getHeight() / 2f - e.getY();
+                float dist = (float) Math.sqrt(dx * dx + dy * dy);
+
+                if (dist < minDistance) {
+                    minDistance = dist;
+                    nearest = null;
+                    nearestBullet = e;
+                }
             }
 
+            float radius = 32;
+
+            if (isAutoAimEnabled && nearest != null) {
+                Vector2 enemyPos;
+                if (nearest != null)
+                    enemyPos = new Vector2(nearest.getX(), nearest.getY());
+                else
+                    enemyPos = new Vector2(nearestBullet.getX(), nearestBullet.getY());
+                Vector2 enemyScreenPos = view.worldToScreen(enemyPos);
+                Gdx.input.setCursorPosition((int) enemyScreenPos.x, (int) enemyScreenPos.y);
+
+                if (Math.abs((int) enemyScreenPos.x - enemyScreenPos.x) < radius && Math.abs((int) enemyScreenPos.y - enemyScreenPos.y) < radius) {
+                    Main.setCustomCursor("m2.png");
+                } else {
+                    Main.setCustomCursor("m.png");
+                }
+            } else if (!isAutoAimEnabled) {
+                Main.setCustomCursor("m.png");
+            }
 
 
             // Player
@@ -213,6 +239,7 @@ public class GameController {
             updateDead(delta);
         }
     }
+
 
     private float getEyeSpawnInterval(float t, int i) {
         if (t > TOTAL_GAME_DURATION / 4f)

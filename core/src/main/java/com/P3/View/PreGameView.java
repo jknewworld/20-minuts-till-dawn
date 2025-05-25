@@ -54,6 +54,7 @@ public class PreGameView implements Screen {
 
     @Override
     public void show() {
+        Main.setCustomCursor("m.png");
         stage = new Stage(new ScreenViewport());
         Gdx.input.setInputProcessor(stage);
 

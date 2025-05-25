@@ -33,6 +33,7 @@ public class Main extends Game {
     private static SpriteBatch batch;
     public static ShaderProgram grayscaleShader;
     public static boolean grayscaleEnabled = false;
+    private static String currentCursorPath = "";
 
 
     @Override
@@ -40,7 +41,7 @@ public class Main extends Game {
         main = this;
         batch = new SpriteBatch();
         ShaderProgram.pedantic = false;
-        setCustomCursor();
+        setCustomCursor("m.png");
 
 
         grayscaleShader = new ShaderProgram(
@@ -59,28 +60,14 @@ public class Main extends Game {
 
 
 
-    private void setCustomCursor() {
-        Pixmap pixmap = new Pixmap(Gdx.files.internal("m.png"));
+    public static void setCustomCursor(String imagePath) {
+        if (imagePath.equals(currentCursorPath)) return;
+
+        Pixmap pixmap = new Pixmap(Gdx.files.internal(imagePath));
         Cursor customCursor = Gdx.graphics.newCursor(pixmap, 0, 0);
         Gdx.graphics.setCursor(customCursor);
         pixmap.dispose();
-    }
-
-//    public static void setCustomCursor2() {
-//        Pixmap pixmap = new Pixmap(Gdx.files.internal("m2.png"));
-//        Cursor customCursor = Gdx.graphics.newCursor(pixmap, 0, 0);
-//        Gdx.graphics.setCursor(customCursor);
-//        pixmap.dispose();
-//    }
-
-    private static String droppedAvatarFile;
-
-    public static void setDroppedAvatarFile(String path) {
-        droppedAvatarFile = path;
-    }
-
-    public static String getDroppedAvatarFile() {
-        return droppedAvatarFile;
+        currentCursorPath = imagePath;
     }
 
     @Override
