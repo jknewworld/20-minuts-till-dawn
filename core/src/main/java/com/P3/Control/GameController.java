@@ -66,6 +66,15 @@ public class GameController {
     private final float shieldShrinkInterval = 1f;
     private final float shieldShrinkAmount = 10f;
     private boolean shieldActive = false;
+    private Shield shield;
+
+    public Shield getShield() {
+        return shield;
+    }
+
+    public boolean isShieldActive() {
+        return shield != null && shield.isActive();
+    }
 
 
     public GameController() {
@@ -125,20 +134,15 @@ public class GameController {
 
         updateControllers();
         updateTimers();
-
         handleMonsterSpawning();
         handleEyeSpawning();
         handleEyeShooting();
-
         handleNearestEnemyAndCursor();
-
         handleElderSpawnAndBehavior();
-
         updateGameObjects();
-
         updateDeadEntities();
 
-        if (shieldActive && elder != null && !elder.isDead()) {
+        if (shieldActive && shield != null && !elder.isDead()) {
             shieldShrinkTimer += Gdx.graphics.getDeltaTime();
 
             if (shieldShrinkTimer >= shieldShrinkInterval) {
@@ -163,6 +167,20 @@ public class GameController {
             }
         }
 
+        if (elderSpawned && elder != null && !elder.isDead() && shield != null) {
+            shield.update(Gdx.graphics.getDeltaTime());
+
+            if (!shield.getBounds().contains(playerController.getPlayer().getPlayerSprite().getX(),
+                playerController.getPlayer().getPlayerSprite().getY())) {
+                playerController.getPlayer().setPlayerHealth(
+                    playerController.getPlayer().getPlayerHealth() - 1
+                );
+            }
+        } else if (shield != null && shield.isActive()) {
+            shield.deactivate();
+        }
+
+
     }
 
     private void updateControllers() {
@@ -180,7 +198,7 @@ public class GameController {
 
     private void handleMonsterSpawning() {
         int i = (int) gameTime;
-        int spawnRate = i / 30;
+        int spawnRate = i / 15;
 
         if (spawnRate > 0) {
             gameTime += Gdx.graphics.getDeltaTime();
@@ -212,7 +230,6 @@ public class GameController {
             ten++;
         }
     }
-
 
     private void handleEyeShooting() {
         if (eyeShootTimer >= EYE_SHOOT_INTERVAL) {
@@ -270,7 +287,7 @@ public class GameController {
     private void handleElderSpawnAndBehavior() {
         float delta = Gdx.graphics.getDeltaTime();
 
-        if ((gameTime > App.loggedInUser.getMaxTime() / 2f) && !elderSpawned) {
+        if (((gameTime > App.loggedInUser.getMaxTime() / 2f) && !elderSpawned) || view.isSoonBasFight()) {
             elder = new Elder();
             elderSpawned = true;
             elder.setDead(false);
@@ -285,6 +302,10 @@ public class GameController {
             elder.setPlayerSprite(s);
             elder.setDashing(false);
             elder.setDashTimer(0f);
+
+            float screenWidth = Gdx.graphics.getWidth();
+            float screenHeight = Gdx.graphics.getHeight();
+            shield = new Shield(screenWidth, screenHeight, 5f);
         }
 
         if (elderSpawned && !elder.isDead()) {
@@ -319,29 +340,7 @@ public class GameController {
                 elder.setDashTimer(0f);
             }
         }
-
-        if ((gameTime > (float) App.loggedInUser.getMaxTime() / 2) && !elderSpawned) {
-            elder = new Elder();
-            elderSpawned = true;
-            elder.setDead(false);
-
-            float x = 100f;
-            float y = 1000f;
-
-            elder.setX(x);
-            elder.setY(y);
-            Sprite s = new Sprite(GameAssetManager.getGameAssetManager().getElder_frames().getKeyFrame(0));
-            s.setPosition(x, y);
-            elder.setPlayerSprite(s);
-            elder.setDashing(false);
-
-            shieldBounds = new Rectangle(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-            shieldActive = true;
-        }
     }
-
-
-
 
     private void updateGameObjects() {
         checkPlayerOverlap();
@@ -371,7 +370,6 @@ public class GameController {
         updateDeadEyes(delta);
         updateDead(delta);
     }
-
 
     private void shootEyesAtPlayer() {
         for (Eye eye : eyes) {
@@ -484,7 +482,6 @@ public class GameController {
         eyes = currentMonsters.toArray(new Eye[0]);
         eyeCount = eyes.length;
     }
-
 
     public void renderTrees() {
         float playerX = playerController.getPlayer().getPosX();
@@ -1279,5 +1276,9 @@ public class GameController {
 
     public void setAutoAimEnabled(boolean autoAimEnabled) {
         isAutoAimEnabled = autoAimEnabled;
+    }
+
+    public GameView getView() {
+        return view;
     }
 }

@@ -7,6 +7,7 @@ import com.P3.Control.StartController;
 import com.P3.Model.App;
 import com.P3.Model.GameAssetManager;
 import com.P3.Model.Repo.UserRepo;
+import com.P3.Model.Shield;
 import com.P3.Model.User;
 import com.badlogic.gdx.*;
 import com.badlogic.gdx.audio.Sound;
@@ -14,6 +15,8 @@ import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.box2d.World;
@@ -58,6 +61,9 @@ public class GameView implements Screen, InputProcessor {
     private ProgressBar timeBar;
     private ProgressBar healthBar;
     private boolean isPaused = false;
+    private int xp = 0;
+    private int maxXp = 0;
+    private ProgressBar xpBar;
 
     // Label
     private Label killLabel;
@@ -78,6 +84,8 @@ public class GameView implements Screen, InputProcessor {
     private boolean isWin = false;
     private boolean isRealPause = false;
     private static int isLevelUp = 0;
+    private boolean soonBasFight = false;
+    ShapeRenderer shapeRenderer = new ShapeRenderer();
 
     // SFX
     private Sound loseSound;
@@ -109,6 +117,14 @@ public class GameView implements Screen, InputProcessor {
         healthBar.setAnimateDuration(0.1f);
         healthBar.setWidth(400);
         healthBar.setHeight(300);
+
+        // XP Bar
+        xpBar = new ProgressBar(0f, (App.loggedInUser.getLevel() * 20) + 1 * 20, 1f, false,
+            skin.get("default-vertical", ProgressBar.ProgressBarStyle.class));
+        xpBar.setValue(xp);
+        xpBar.setAnimateDuration(0.1f);
+        xpBar.setWidth(400);
+        xpBar.setHeight(150);
 
         // Label
         if (StartView.getLanguge() == 1)
@@ -143,6 +159,8 @@ public class GameView implements Screen, InputProcessor {
     public void show() {
         stage = new Stage(new ScreenViewport());
         InputMultiplexer multiplexer = new InputMultiplexer();
+        shapeRenderer = new ShapeRenderer();
+
         multiplexer.addProcessor(stage);
         multiplexer.addProcessor(this);
         Gdx.input.setInputProcessor(multiplexer);
@@ -170,6 +188,10 @@ public class GameView implements Screen, InputProcessor {
         healthBar.setSize(300, 160);
         healthBar.setPosition(30, 800);
         stage.addActor(healthBar);
+        xpBar.setSize(200, 300);
+        xpBar.setPosition(30, 500);
+        xpBar.setColor(Color.SLATE);
+        stage.addActor(xpBar);
 
         stage.addActor(table);
 
@@ -200,6 +222,17 @@ public class GameView implements Screen, InputProcessor {
 
         if (shouldRenderStage(stage)) {
             renderStage(stage, frameTime);
+            if (controller.isShieldActive()) {
+                Shield shield = controller.getShield();
+
+                shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
+                shapeRenderer.setColor(Color.RED);
+
+                Rectangle bounds = shield.getBounds();
+                shapeRenderer.rect(bounds.x, bounds.y, bounds.width, bounds.height);
+
+                shapeRenderer.end();
+            }
             return;
         }
 
@@ -854,8 +887,11 @@ public class GameView implements Screen, InputProcessor {
             return true;
         }
 
-        if (keycode == Input.Keys.R) {
-            App.loggedInUser.setReloadR(App.loggedInUser.isReloadR());
+        if (keycode == Input.Keys.R || keycode == Input.Keys.T) {
+            App.loggedInUser.setReloadR(true);
+        }
+        if(keycode == Input.Keys.B) {
+            setSoonBasFight(true);
         }
         return false;
     }
@@ -934,4 +970,27 @@ public class GameView implements Screen, InputProcessor {
         return new Vector2(projected.x, Gdx.graphics.getHeight() - projected.y);
     }
 
+    public int getXp() {
+        return xp;
+    }
+
+    public void setXp(int xp) {
+        this.xp = xp;
+    }
+
+    public int getMaxXp() {
+        return maxXp;
+    }
+
+    public void setMaxXp(int maxXp) {
+        this.maxXp = maxXp;
+    }
+
+    public boolean isSoonBasFight() {
+        return soonBasFight;
+    }
+
+    public void setSoonBasFight(boolean soonBasFight) {
+        this.soonBasFight = soonBasFight;
+    }
 }

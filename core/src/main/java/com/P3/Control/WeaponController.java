@@ -3,6 +3,7 @@ package com.P3.Control;
 import com.P3.Model.App;
 import com.P3.Model.Monster;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
@@ -41,7 +42,11 @@ public class WeaponController {
         updateBullets();
         weapon.updateReload();
 
-        if ((App.autoReloadEnabled && weapon.getAmmo() == 0 )|| App.loggedInUser.isReloadR())
+        if (Gdx.input.isKeyPressed(Input.Keys.R)) {
+            App.autoReloadEnabled = true;
+        }
+
+        if ((App.autoReloadEnabled && weapon.getAmmo() == 0))
             weapon.startReload();
     }
 

@@ -57,6 +57,20 @@ public class PlayerController {
             }
         }
 
+        if(xp<20){
+            gameController.getView().setXp(xp);
+            gameController.getView().setMaxXp(20);
+        }else if(xp<40){
+            gameController.getView().setXp(xp);
+            gameController.getView().setMaxXp(40);
+        }else if(xp<60){
+            gameController.getView().setXp(xp);
+            gameController.getView().setMaxXp(60);
+        }else if(xp<80){
+            gameController.getView().setXp(xp);
+            gameController.getView().setMaxXp(80);
+        }
+
         if (isMoving()) {
             walkAnimation();
         } else {
@@ -95,15 +109,18 @@ public class PlayerController {
         }
 
         if (App.loggedInUser.isKeyboard()) {
-            if (Gdx.input.isKeyPressed(Input.Keys.W) && !gameController.willCollideWithTree(player.getPosX(), player.getPosY() - player.getSpeed())) {
+            if (Gdx.input.isKeyPressed(Input.Keys.W) && !gameController.willCollideWithTree(player.getPosX(),
+                player.getPosY() - player.getSpeed())) {
                 player.setPosY(player.getPosY() - player.getSpeed());
                 setPlayer(player);
             }
-            if (Gdx.input.isKeyPressed(Input.Keys.D) && !gameController.willCollideWithTree(player.getPosX() - player.getSpeed(), player.getPosY())) {
+            if (Gdx.input.isKeyPressed(Input.Keys.D) &&
+                !gameController.willCollideWithTree(player.getPosX() - player.getSpeed(), player.getPosY())) {
                 player.setPosX(player.getPosX() - player.getSpeed());
                 setPlayer(player);
             }
-            if (Gdx.input.isKeyPressed(Input.Keys.S) && !gameController.willCollideWithTree(player.getPosX(), player.getPosY() + player.getSpeed())) {
+            if (Gdx.input.isKeyPressed(Input.Keys.S) &&
+                !gameController.willCollideWithTree(player.getPosX(), player.getPosY() + player.getSpeed())) {
                 player.setPosY(player.getPosY() + player.getSpeed());
                 setPlayer(player);
             }
