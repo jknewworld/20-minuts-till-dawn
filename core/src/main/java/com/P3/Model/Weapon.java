@@ -19,7 +19,6 @@ public class Weapon {
         this.type = type;
         this.ammo = type.maxAmmo;
 
-        // texture selection
         if (type == WeaponType.DUAL_SMG) {
             texture = new Texture(GameAssetManager.getGameAssetManager().getSmg());
         } else if (type == WeaponType.SHOTGUN) {

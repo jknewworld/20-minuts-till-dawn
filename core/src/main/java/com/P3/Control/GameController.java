@@ -740,9 +740,6 @@ public class GameController {
     }
 
     public void renderElder() {
-        float playerX = playerController.getPlayer().getPosX();
-        float playerY = playerController.getPlayer().getPosY();
-
         if (true) {
             if (elder.isDashing()) {
                 moveElderTowardsPlayer(elder);

@@ -117,6 +117,15 @@ public class ProfileView implements Screen {
 
         table.setFillParent(true);
         table.center();
+        stage.addActor(table);
+
+        setupMainButtons();
+        setupListeners();
+    }
+
+    private void setupMainButtons() {
+        table.clear();
+
         table.row().pad(10, 0, 10, 0);
         Table buttonTable1 = new Table();
         buttonTable1.add(changUsername).width(550).height(110).padRight(5);
@@ -131,29 +140,13 @@ public class ProfileView implements Screen {
 
         table.row().pad(10, 0, 10, 0);
         table.add(backButton).width(550).height(110);
+    }
 
-        stage.addActor(table);
-
+    private void setupListeners() {
         changUsername.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                table.clearChildren();
-
-                table.row().pad(10, 0, 10, 0);
-                Table buttonTable1 = new Table();
-                buttonTable1.add(changUsername).width(550).height(110).padRight(5);
-                buttonTable1.add(changePassword).width(550).height(110).padLeft(5);
-                table.add(buttonTable1).width(500);
-
-                table.row().pad(10, 0, 10, 0);
-                Table buttonTable2 = new Table();
-                buttonTable2.add(remove).width(550).height(110).padRight(5);
-                buttonTable2.add(changeAvatar).width(550).height(110).padLeft(5);
-                table.add(buttonTable2).width(500);
-
-                table.row().pad(10, 0, 10, 0);
-                table.add(backButton).width(550).height(110);
-
+                setupMainButtons();
                 table.row().pad(10);
                 table.add(newName).width(550).height(80);
                 table.row().pad(10);
@@ -173,23 +166,7 @@ public class ProfileView implements Screen {
         changePassword.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                table.clearChildren();
-
-                table.row().pad(10, 0, 10, 0);
-                Table buttonTable1 = new Table();
-                buttonTable1.add(changUsername).width(550).height(110).padRight(5);
-                buttonTable1.add(changePassword).width(550).height(110).padLeft(5);
-                table.add(buttonTable1).width(500);
-
-                table.row().pad(10, 0, 10, 0);
-                Table buttonTable2 = new Table();
-                buttonTable2.add(remove).width(550).height(110).padRight(5);
-                buttonTable2.add(changeAvatar).width(550).height(110).padLeft(5);
-                table.add(buttonTable2).width(500);
-
-                table.row().pad(10, 0, 10, 0);
-                table.add(backButton).width(550).height(110);
-
+                setupMainButtons();
                 table.row().pad(10);
                 table.add(newPassword).width(550).height(80);
                 table.row().pad(10);
@@ -209,22 +186,7 @@ public class ProfileView implements Screen {
         changeAvatar.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                table.clearChildren();
-
-                table.row().pad(10, 0, 10, 0);
-                Table buttonTable1 = new Table();
-                buttonTable1.add(changUsername).width(550).height(110).padRight(5);
-                buttonTable1.add(changePassword).width(550).height(110).padLeft(5);
-                table.add(buttonTable1).width(500);
-
-                table.row().pad(10, 0, 10, 0);
-                Table buttonTable2 = new Table();
-                buttonTable2.add(remove).width(550).height(110).padRight(5);
-                buttonTable2.add(changeAvatar).width(550).height(110).padLeft(5);
-                table.add(buttonTable2).width(500);
-
-                table.row().pad(10, 0, 10, 0);
-                table.add(backButton).width(550).height(110);
+                setupMainButtons();
 
                 table.row().pad(10, 0, 10, 0);
                 table.add(selectBox).width(500).height(80);
@@ -240,7 +202,6 @@ public class ProfileView implements Screen {
                 avatarImage2.setPosition(1250, 100);
                 stage.addActor(avatarImage2);
 
-
                 chooseFileButton.addListener(new ClickListener() {
                     @Override
                     public void clicked(InputEvent event, float x, float y) {
@@ -248,7 +209,6 @@ public class ProfileView implements Screen {
                             try {
                                 Class<?> chooserClass = Class.forName("com.P3.Model.DesktopFileChooser");
                                 String path = (String) chooserClass.getMethod("chooseFilePath").invoke(null);
-
                                 if (path != null) {
                                     App.loggedInUser.setAvatar(20);
                                     App.loggedInUser.setAvatarPath(path);
@@ -278,8 +238,6 @@ public class ProfileView implements Screen {
             }
         });
 
-
-
         remove.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
@@ -289,7 +247,6 @@ public class ProfileView implements Screen {
                 Main.getMain().setScreen(new StartView(new StartController(), GameAssetManager.getGameAssetManager().getSkin()));
             }
         });
-
     }
 
     public void showMessage(String messagee, Color color) {
@@ -343,147 +300,12 @@ public class ProfileView implements Screen {
 
     }
 
-    public Texture getBackgroundTexture() {
-        return backgroundTexture;
-    }
-
-    public void setBackgroundTexture(Texture backgroundTexture) {
-        this.backgroundTexture = backgroundTexture;
-    }
-
-    public Image getBackgroundImage() {
-        return backgroundImage;
-    }
-
-    public void setBackgroundImage(Image backgroundImage) {
-        this.backgroundImage = backgroundImage;
-    }
-
-    public TextButton getChangUsername() {
-        return changUsername;
-    }
-
-    public void setChangUsername(TextButton changUsername) {
-        this.changUsername = changUsername;
-    }
-
-    public TextButton getChangePassword() {
-        return changePassword;
-    }
-
-    public void setChangePassword(TextButton changePassword) {
-        this.changePassword = changePassword;
-    }
-
-    public TextButton getRemove() {
-        return remove;
-    }
-
-    public void setRemove(TextButton remove) {
-        this.remove = remove;
-    }
-
-    public Stage getStage() {
-        return stage;
-    }
-
-    public void setStage(Stage stage) {
-        this.stage = stage;
-    }
-
-    public Table getTable() {
-        return table;
-    }
-
-    public void setTable(Table table) {
-        this.table = table;
-    }
-
-    public MainMenuController getController() {
-        return controller;
-    }
-
-    public void setController(MainMenuController controller) {
-        this.controller = controller;
-    }
-
     public TextField getNewName() {
         return newName;
-    }
-
-    public void setNewName(TextField newName) {
-        this.newName = newName;
     }
 
     public TextField getNewPassword() {
         return newPassword;
     }
 
-    public void setNewPassword(TextField newPassword) {
-        this.newPassword = newPassword;
-    }
-
-    public Label getMessage() {
-        return message;
-    }
-
-    public void setMessage(Label message) {
-        this.message = message;
-    }
-
-    public TextButton getChangeAvatar() {
-        return changeAvatar;
-    }
-
-    public void setChangeAvatar(TextButton changeAvatar) {
-        this.changeAvatar = changeAvatar;
-    }
-
-    public TextButton getChange1() {
-        return change1;
-    }
-
-    public void setChange1(TextButton change1) {
-        this.change1 = change1;
-    }
-
-    public Texture getAvtarPic1() {
-        return avtarPic1;
-    }
-
-    public void setAvtarPic1(Texture avtarPic1) {
-        this.avtarPic1 = avtarPic1;
-    }
-
-    public Image getAvatarImage1() {
-        return avatarImage1;
-    }
-
-    public void setAvatarImage1(Image avatarImage1) {
-        this.avatarImage1 = avatarImage1;
-    }
-
-    public Texture getAvtarPic2() {
-        return avtarPic2;
-    }
-
-    public void setAvtarPic2(Texture avtarPic2) {
-        this.avtarPic2 = avtarPic2;
-    }
-
-    public Image getAvatarImage2() {
-        return avatarImage2;
-    }
-
-    public void setAvatarImage2(Image avatarImage2) {
-        this.avatarImage2 = avatarImage2;
-    }
-
-    public SelectBox<String> getSelectBox() {
-        return selectBox;
-    }
-
-    public void setSelectBox(SelectBox<String> selectBox) {
-        this.selectBox = selectBox;
-    }
 }

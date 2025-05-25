@@ -17,7 +17,8 @@ public class Tree {
     public Tree() {
         playerSprite.setPosition((float) Gdx.graphics.getWidth() / 2, (float) Gdx.graphics.getHeight() / 2);
         playerSprite.setSize(tree.getWidth() * 3, tree.getHeight() * 3);
-        rect = new CollisionRect((float) Gdx.graphics.getWidth() / 2, (float) Gdx.graphics.getHeight(), tree.getWidth() * 3, tree.getHeight() * 3);
+        rect = new CollisionRect((float) Gdx.graphics.getWidth() / 2, (float) Gdx.graphics.getHeight(),
+            tree.getWidth() * 3, tree.getHeight() * 3);
 
     }
 

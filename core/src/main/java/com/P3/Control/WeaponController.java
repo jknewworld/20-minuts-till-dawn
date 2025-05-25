@@ -19,11 +19,6 @@ public class WeaponController {
     private Weapon weapon;
     private ArrayList<Bullet> bullets = new ArrayList<>();
     private boolean reloadAuto = true;
-    private boolean ability3Active = false;
-    private long ability3StartTime = 0;
-    private int pendingProjectiles = 0;
-    private long lastProjectileTime = 0;
-    private static final long PROJECTILE_INTERVAL = 100;
     private Sound gunshotSound;
 
 

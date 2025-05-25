@@ -33,7 +33,6 @@ public class ScoreBoard {
 
 
     public void sortUsers(String sortType) {
-        //currentSort = sortType;
         switch (sortType) {
             case "score":
                 users.sort(Comparator.comparingInt(User::getScore).reversed());

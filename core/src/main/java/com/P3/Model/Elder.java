@@ -28,7 +28,8 @@ public class Elder {
     public Elder() {
         playerSprite.setPosition((float) Gdx.graphics.getWidth() / 2, (float) Gdx.graphics.getHeight() / 2);
         playerSprite.setSize(monster.getWidth() * 10, monster.getHeight() * 10);
-        rect = new CollisionRect((float) Gdx.graphics.getWidth() / 2, (float) Gdx.graphics.getHeight(), monster.getWidth() * 10, monster.getHeight() * 10);
+        rect = new CollisionRect((float) Gdx.graphics.getWidth() / 2, (float) Gdx.graphics.getHeight(),
+            monster.getWidth() * 10, monster.getHeight() * 10);
         this.HP = 400;
     }
 
@@ -73,26 +74,6 @@ public class Elder {
         return rect;
     }
 
-    public void setRect(CollisionRect rect) {
-        this.rect = rect;
-    }
-
-    public int getHP() {
-        return HP;
-    }
-
-    public void setHP(int HP) {
-        this.HP = HP;
-    }
-
-    public int getType() {
-        return type;
-    }
-
-    public void setType(int type) {
-        this.type = type;
-    }
-
     public boolean isDead() {
         return isDead;
     }
@@ -102,72 +83,8 @@ public class Elder {
         deathTime = 0f;
     }
 
-    public float getDeathTime() {
-        return deathTime;
-    }
-
-    public void updateDeathTime(float delta) {
-        deathTime += delta;
-    }
-
-    public boolean shouldBeRemoved() {
-        return shouldBeRemoved;
-    }
-
     public void setShouldBeRemoved(boolean shouldBeRemoved) {
         this.shouldBeRemoved = shouldBeRemoved;
-    }
-
-    public Texture getMonster() {
-        return monster;
-    }
-
-    public void setDeathTime(float deathTime) {
-        this.deathTime = deathTime;
-    }
-
-    public boolean isShouldBeRemoved() {
-        return shouldBeRemoved;
-    }
-
-    public float getFireRate() {
-        return fireRate;
-    }
-
-    public void setFireRate(float fireRate) {
-        this.fireRate = fireRate;
-    }
-
-    public float getDx() {
-        return dx;
-    }
-
-    public void setDx(float dx) {
-        this.dx = dx;
-    }
-
-    public float getDy() {
-        return dy;
-    }
-
-    public void setDy(float dy) {
-        this.dy = dy;
-    }
-
-    public boolean isSeed() {
-        return isSeed;
-    }
-
-    public void setSeed(boolean seed) {
-        isSeed = seed;
-    }
-
-    public float getTimeSinceLastDash() {
-        return timeSinceLastDash;
-    }
-
-    public void setTimeSinceLastDash(float timeSinceLastDash) {
-        this.timeSinceLastDash = timeSinceLastDash;
     }
 
     public boolean isDashing() {

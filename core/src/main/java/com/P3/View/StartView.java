@@ -176,84 +176,12 @@ public class StartView implements Screen {
 
     }
 
-    public Texture getBackgroundTexture() {
-        return backgroundTexture;
-    }
-
-    public void setBackgroundTexture(Texture backgroundTexture) {
-        this.backgroundTexture = backgroundTexture;
-    }
-
-    public Texture getBackgroundTexture2() {
-        return backgroundTexture2;
-    }
-
-    public void setBackgroundTexture2(Texture backgroundTexture2) {
-        this.backgroundTexture2 = backgroundTexture2;
-    }
-
-    public Image getBackgroundImage() {
-        return backgroundImage;
-    }
-
-    public void setBackgroundImage(Image backgroundImage) {
-        this.backgroundImage = backgroundImage;
-    }
-
-    public float getElapsedTime() {
-        return elapsedTime;
-    }
-
-    public void setElapsedTime(float elapsedTime) {
-        this.elapsedTime = elapsedTime;
-    }
-
-    public boolean isShowingFirst() {
-        return showingFirst;
-    }
-
-    public void setShowingFirst(boolean showingFirst) {
-        this.showingFirst = showingFirst;
-    }
-
-    public Stage getStage() {
-        return stage;
-    }
-
-    public void setStage(Stage stage) {
-        this.stage = stage;
-    }
-
     public TextButton getSignupButton() {
         return signupButton;
     }
 
-    public void setSignupButton(TextButton signupButton) {
-        this.signupButton = signupButton;
-    }
-
     public TextButton getMainMenuButton() {
         return mainMenuButton;
-    }
-
-    public void setMainMenuButton(TextButton mainMenuButton) {
-        this.mainMenuButton = mainMenuButton;
-    }
-
-    public Table getTable() {
-        return table;
-    }
-
-    public void setTable(Table table) {
-        this.table = table;
-    }
-
-    public StartController getController() {
-        return controller;
-    }
-
-    public void setController(StartController controller) {
-        this.controller = controller;
     }
 
     public static int getLanguge() {

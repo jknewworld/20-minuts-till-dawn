@@ -23,7 +23,8 @@ public class Eye {
     public Eye() {
         playerSprite.setPosition((float) Gdx.graphics.getWidth() / 2, (float) Gdx.graphics.getHeight() / 2);
         playerSprite.setSize(monster.getWidth() * 10, monster.getHeight() * 10);
-        rect = new CollisionRect((float) Gdx.graphics.getWidth() / 2, (float) Gdx.graphics.getHeight(), monster.getWidth() * 10, monster.getHeight() * 10);
+        rect = new CollisionRect((float) Gdx.graphics.getWidth() / 2, (float) Gdx.graphics.getHeight(),
+            monster.getWidth() * 10, monster.getHeight() * 10);
         this.HP = 50;
     }
 

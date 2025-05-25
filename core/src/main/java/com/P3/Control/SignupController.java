@@ -20,7 +20,6 @@ import java.util.Random;
 public class SignupController {
     private SignupView view;
 
-
     public void setView(SignupView view) {
         this.view = view;
     }

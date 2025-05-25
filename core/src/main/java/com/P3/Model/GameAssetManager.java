@@ -22,7 +22,8 @@ public class GameAssetManager {
     private final Texture character0_idle3_tex = new Texture(character0_idle3);
     private final Texture character0_idle4_tex = new Texture(character0_idle4);
     private final Texture character0_idle5_tex = new Texture(character0_idle5);
-    private final Animation<Texture> character0_idle_frames = new Animation<>(0.1f, character0_idle0_tex, character0_idle1_tex, character0_idle2_tex, character0_idle3_tex, character0_idle4_tex, character0_idle5_tex);
+    private final Animation<Texture> character0_idle_frames = new Animation<>(0.1f, character0_idle0_tex,
+        character0_idle1_tex, character0_idle2_tex, character0_idle3_tex, character0_idle4_tex, character0_idle5_tex);
 
 
     private final String character1_idle0 = "1/Idle_0.png";
@@ -37,7 +38,8 @@ public class GameAssetManager {
     private final Texture character1_idle3_tex = new Texture(character1_idle3);
     private final Texture character1_idle4_tex = new Texture(character1_idle4);
     private final Texture character1_idle5_tex = new Texture(character1_idle5);
-    private final Animation<Texture> character1_idle_frames = new Animation<>(0.1f, character1_idle0_tex, character1_idle1_tex, character1_idle2_tex, character1_idle3_tex, character1_idle4_tex, character1_idle5_tex);
+    private final Animation<Texture> character1_idle_frames = new Animation<>(0.1f, character1_idle0_tex,
+        character1_idle1_tex, character1_idle2_tex, character1_idle3_tex, character1_idle4_tex, character1_idle5_tex);
 
     private final String character2_idle0 = "2/Idle_0.png";
     private final String character2_idle1 = "2/Idle_1.png";
@@ -51,7 +53,8 @@ public class GameAssetManager {
     private final Texture character2_idle3_tex = new Texture(character2_idle3);
     private final Texture character2_idle4_tex = new Texture(character2_idle4);
     private final Texture character2_idle5_tex = new Texture(character2_idle5);
-    private final Animation<Texture> character2_idle_frames = new Animation<>(0.1f, character2_idle0_tex, character2_idle1_tex, character2_idle2_tex, character2_idle3_tex, character2_idle4_tex, character2_idle5_tex);
+    private final Animation<Texture> character2_idle_frames = new Animation<>(0.1f, character2_idle0_tex,
+        character2_idle1_tex, character2_idle2_tex, character2_idle3_tex, character2_idle4_tex, character2_idle5_tex);
 
     private final String character3_idle0 = "3/Idle_0.png";
     private final String character3_idle1 = "3/Idle_1.png";
@@ -65,7 +68,8 @@ public class GameAssetManager {
     private final Texture character3_idle3_tex = new Texture(character3_idle3);
     private final Texture character3_idle4_tex = new Texture(character3_idle4);
     private final Texture character3_idle5_tex = new Texture(character3_idle5);
-    private final Animation<Texture> character3_idle_frames = new Animation<>(0.1f, character3_idle0_tex, character3_idle1_tex, character3_idle2_tex, character3_idle3_tex, character3_idle4_tex, character3_idle5_tex);
+    private final Animation<Texture> character3_idle_frames = new Animation<>(0.1f, character3_idle0_tex,
+        character3_idle1_tex, character3_idle2_tex, character3_idle3_tex, character3_idle4_tex, character3_idle5_tex);
 
     private final String character4_idle0 = "4/Idle_0.png";
     private final String character4_idle1 = "4/Idle_1.png";
@@ -79,7 +83,8 @@ public class GameAssetManager {
     private final Texture character4_idle3_tex = new Texture(character4_idle3);
     private final Texture character4_idle4_tex = new Texture(character4_idle4);
     private final Texture character4_idle5_tex = new Texture(character4_idle5);
-    private final Animation<Texture> character4_idle_frames = new Animation<>(0.1f, character4_idle0_tex, character4_idle1_tex, character4_idle2_tex, character4_idle3_tex, character4_idle4_tex, character4_idle5_tex);
+    private final Animation<Texture> character4_idle_frames = new Animation<>(0.1f, character4_idle0_tex,
+        character4_idle1_tex, character4_idle2_tex, character4_idle3_tex, character4_idle4_tex, character4_idle5_tex);
 
     private final String tree0 = "tree/0.png";
     private final String tree1 = "tree/1.png";
@@ -89,7 +94,8 @@ public class GameAssetManager {
     private final Texture tree1_tex = new Texture(tree1);
     private final Texture tree2_tex = new Texture(tree2);
     private final Texture tree3_tex = new Texture(tree3);
-    private final Animation<Texture> tree_frames = new Animation<>(0.3f, tree0_tex, tree1_tex, tree2_tex, tree3_tex);
+    private final Animation<Texture> tree_frames = new Animation<>(0.3f, tree0_tex, tree1_tex, tree2_tex,
+        tree3_tex);
 
     private final String monster0 = "monster/0.png";
     private final String monster1 = "monster/1.png";
@@ -99,7 +105,8 @@ public class GameAssetManager {
     private final Texture monster1_tex = new Texture(monster1);
     private final Texture monster2_tex = new Texture(monster2);
     private final Texture monster3_tex = new Texture(monster3);
-    private final Animation<Texture> monster_frames = new Animation<>(0.3f, monster0_tex, monster1_tex, monster2_tex, monster3_tex);
+    private final Animation<Texture> monster_frames = new Animation<>(0.3f, monster0_tex, monster1_tex,
+        monster2_tex, monster3_tex);
 
     private final Texture monsterSeed = new Texture("monster/seed.png");
     private final Animation<Texture> monsterSeed_frames = new Animation<>(1, monsterSeed);
@@ -110,7 +117,8 @@ public class GameAssetManager {
     private final Texture deathMonster = new Texture("monster/d1.png");
     private final Texture deathMonster2 = new Texture("monster/d2.png");
     private final Texture deathMonster3 = new Texture("monster/d3.png");
-    private final Animation<Texture> death_frames = new Animation<>(0.9f, deathMonster, deathMonster2, deathMonster3);
+    private final Animation<Texture> death_frames = new Animation<>(0.9f, deathMonster, deathMonster2,
+        deathMonster3);
 
     private final Texture death0 = new Texture("death/0.png");
     private final Texture death1 = new Texture("death/1.png");
@@ -125,7 +133,8 @@ public class GameAssetManager {
     private final Texture walk15 = new Texture("1/w5.png");
     private final Texture walk16 = new Texture("1/w0.png");
     private final Texture walk17 = new Texture("1/w1.png");
-    private final Animation<Texture> walk1_frames = new Animation<>(0.08f, walk10, walk11, walk12, walk13, walk14, walk15, walk16, walk17);
+    private final Animation<Texture> walk1_frames = new Animation<>(0.08f, walk10, walk11, walk12, walk13,
+        walk14, walk15, walk16, walk17);
 
     private final Texture walk20 = new Texture("2/w0.png");
     private final Texture walk21 = new Texture("2/w1.png");
@@ -134,7 +143,8 @@ public class GameAssetManager {
     private final Texture walk24 = new Texture("2/w4.png");
     private final Texture walk26 = new Texture("2/w0.png");
     private final Texture walk27 = new Texture("2/w1.png");
-    private final Animation<Texture> walk2_frames = new Animation<>(0.08f, walk20, walk21, walk22, walk23, walk24, walk26, walk27);
+    private final Animation<Texture> walk2_frames = new Animation<>(0.08f, walk20, walk21, walk22, walk23,
+        walk24, walk26, walk27);
 
     private final String eye0 = "eye/0.png";
     private final String eye1 = "eye/1.png";

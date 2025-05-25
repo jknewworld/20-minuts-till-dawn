@@ -23,7 +23,8 @@ public class EnemyBullet {
         this.spawnTime = System.currentTimeMillis();
         playerSprite.setPosition((float) Gdx.graphics.getWidth() / 2, (float) Gdx.graphics.getHeight() / 2);
         playerSprite.setSize(10 , 10);
-        rect = new CollisionRect((float) Gdx.graphics.getWidth() / 2, (float) Gdx.graphics.getHeight()/2, monster.getWidth() * 10, monster.getHeight() * 10);
+        rect = new CollisionRect((float) Gdx.graphics.getWidth() / 2, (float) Gdx.graphics.getHeight()/2,
+            monster.getWidth() * 10, monster.getHeight() * 10);
     }
 
     public boolean isReadyToCollide(long currentTime) {

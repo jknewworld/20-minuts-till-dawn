@@ -77,7 +77,6 @@ public class PlayerController {
             idleAnimation();
         }
 
-
         handlePlayerInput();
     }
 
@@ -94,7 +93,6 @@ public class PlayerController {
                 Gdx.input.isKeyPressed(Input.Keys.D);
         }
     }
-
 
     public void handlePlayerInput() {
         if (App.loggedInUser.getAbility() == 4 && !ability3Active) {
@@ -180,7 +178,6 @@ public class PlayerController {
         }
     }
 
-
     public void idleAnimation() {
         if (App.loggedInUser.getHero() == 1) {
             Animation<Texture> animation = GameAssetManager.getGameAssetManager().getCharacter1_idle_animation();
@@ -253,6 +250,4 @@ public class PlayerController {
     public void setPlayer(Player player) {
         this.player = player;
     }
-
-
 }

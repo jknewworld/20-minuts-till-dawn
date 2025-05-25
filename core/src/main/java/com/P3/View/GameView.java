@@ -155,7 +155,6 @@ public class GameView implements Screen, InputProcessor {
 
     }
 
-
     @Override
     public void show() {
         stage = new Stage(new ScreenViewport());
@@ -190,7 +189,7 @@ public class GameView implements Screen, InputProcessor {
         healthBar.setPosition(30, 800);
         stage.addActor(healthBar);
         xpBar.setSize(200, 500);
-        xpBar.setPosition(30, 500);
+        xpBar.setPosition(30, 300);
         xpBar.setColor(Color.GRAY);
         stage.addActor(xpBar);
 
@@ -211,16 +210,11 @@ public class GameView implements Screen, InputProcessor {
     public void render(float delta) {
         clearScreen();
         beginDrawing();
-
-        if (shouldRenderNormalGame()) {
+        if (shouldRenderNormalGame())
             renderNormalGame(delta);
-        }
-
         updateStatusLabels();
         endDrawing();
-
         float frameTime = Math.min(Gdx.graphics.getDeltaTime(), 1 / 30f);
-
         if (shouldRenderStage(stage)) {
             renderStage(stage, frameTime);
             if (controller.isShieldActive()) {
@@ -236,27 +230,19 @@ public class GameView implements Screen, InputProcessor {
             }
             return;
         }
-
         if (shouldRevivePlayer()) {
             revivePlayer();
             return;
-        }
-
-        if (isLose) {
+        } else if (isLose) {
             renderStage(loseStage, frameTime);
             return;
-        }
-
-        if (isWin) {
+        } else if (isWin) {
             renderStage(winStage, frameTime);
             return;
-        }
-
-        if (isRealPause) {
+        } else if (isRealPause) {
             renderStage(realPauseMenuStage, frameTime);
             return;
         }
-
         renderStage(pauseStage, frameTime);
     }
 
@@ -330,7 +316,6 @@ public class GameView implements Screen, InputProcessor {
         Gdx.input.setInputProcessor(stage);
     }
 
-
     public void normalMode(float delta) {
         controller.updateGame();
         elapsedTime += delta;
@@ -382,69 +367,75 @@ public class GameView implements Screen, InputProcessor {
         Main.setCustomCursor("m.png");
         pauseStage = new Stage(new ScreenViewport());
         Table pauseTable = new Table();
+
         if (App.loggedInUser.isPlaySFX())
             levelupSound.play(1.0f);
 
+        addBackground(pauseStage);
+        pauseTable.setFillParent(true);
+
+        setupAbilityButtons(skin, pauseTable);
+        setupExitButton(skin, pauseTable);
+
+        pauseStage.addActor(pauseTable);
+    }
+
+    private void addBackground(Stage stage) {
         Texture backgroundTexture = new Texture("levelup.png");
         Image backgroundImage = new Image(backgroundTexture);
         backgroundImage.setSize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-        pauseStage.addActor(backgroundImage);
-        pauseTable.setFillParent(true);
+        stage.addActor(backgroundImage);
+    }
 
+    private void setupAbilityButtons(Skin skin, Table table) {
         Random rand = new Random();
+
         int num1 = rand.nextInt(5);
-        if (num1 == 0) {
-            this.ability1 = new TextButton("VITALITY", skin);
-        } else if (num1 == 1) {
-            this.ability1 = new TextButton("DAMAGER", skin);
-        } else if (num1 == 2) {
-            this.ability1 = new TextButton("PROCREASE", skin);
-        } else if (num1 == 3) {
-            this.ability1 = new TextButton("AMOGREASE", skin);
-        } else if (num1 == 4) {
-            this.ability1 = new TextButton("SPEEDY", skin);
-        }
+        this.ability1 = createAbilityButton(num1, skin);
 
         int num2 = rand.nextInt(5);
         while (num1 == num2) {
             num2 = rand.nextInt(5);
         }
-        if (num2 == 0) {
-            this.ability2 = new TextButton("VITALITY", skin);
-        } else if (num2 == 1) {
-            this.ability2 = new TextButton("DAMAGER", skin);
-        } else if (num2 == 2) {
-            this.ability2 = new TextButton("PROCREASE", skin);
-        } else if (num2 == 3) {
-            this.ability2 = new TextButton("AMOGREASE", skin);
-        } else if (num2 == 4) {
-            this.ability2 = new TextButton("SPEEDY", skin);
-        }
+        this.ability2 = createAbilityButton(num2, skin);
 
         int num3 = rand.nextInt(5);
         while (num1 == num3 || num2 == num3) {
             num3 = rand.nextInt(5);
         }
-        if (num3 == 0) {
-            this.ability3 = new TextButton("VITALITY", skin);
-        } else if (num3 == 1) {
-            this.ability3 = new TextButton("DAMAGER", skin);
-        } else if (num3 == 2) {
-            this.ability3 = new TextButton("PROCREASE", skin);
-        } else if (num3 == 3) {
-            this.ability3 = new TextButton("AMOGREASE", skin);
-        } else if (num3 == 4) {
-            this.ability3 = new TextButton("SPEEDY", skin);
-        }
+        this.ability3 = createAbilityButton(num3, skin);
 
+        addAbilityListener(ability1, num1);
+        addAbilityListener(ability2, num2);
+        addAbilityListener(ability3, num3);
 
-        TextButton exitButton = new TextButton("Exit", skin);
+        table.add(ability1).pad(10);
+        table.row();
+        table.add(ability2).pad(10);
+        table.row();
+        table.add(ability3).pad(10);
+        table.row();
+    }
 
-        ability1.addListener(new ClickListener() {
+    private TextButton createAbilityButton(int num, Skin skin) {
+        if (num == 0)
+            return new TextButton("VITALITY", skin);
+        else if (num == 1)
+            return new TextButton("DAMAGER", skin);
+        else if (num == 2)
+            return new TextButton("PROCREASE", skin);
+        else if (num == 3)
+            return new TextButton("AMOGREASE", skin);
+        else // num == 4
+            return new TextButton("SPEEDY", skin);
+    }
+
+    private void addAbilityListener(TextButton button, int abilityNum) {
+        button.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                App.loggedInUser.setAbility(num1);
-                switch (num1) {
+                App.loggedInUser.setAbility(abilityNum);
+                switch (abilityNum) {
                     case 0:
                         abilities.add("vitality");
                         break;
@@ -464,144 +455,100 @@ public class GameView implements Screen, InputProcessor {
                 setIsLevelUp(0);
                 UserRepo.saveUser(App.loggedInUser);
                 isPaused = false;
-                pauseStage.clear();
-                InputMultiplexer multiplexer = new InputMultiplexer();
-                multiplexer.addProcessor(stage);
-                multiplexer.addProcessor(GameView.this);
-                Gdx.input.setInputProcessor(multiplexer);
-
-            }
-        });
-
-        int finalNum = num2;
-        ability2.addListener(new ClickListener() {
-            @Override
-            public void clicked(InputEvent event, float x, float y) {
-                App.loggedInUser.setAbility(finalNum);
-                switch (finalNum) {
-                    case 0:
-                        abilities.add("vitality");
-                        break;
-                    case 1:
-                        abilities.add("Damager");
-                        break;
-                    case 2:
-                        abilities.add("Procrease");
-                        break;
-                    case 3:
-                        abilities.add("Aamogrease");
-                        break;
-                    case 4:
-                        abilities.add("Speedy");
-                        break;
-                }
-                isLevelUp = 0;
                 first = true;
-                UserRepo.saveUser(App.loggedInUser);
-                isPaused = false;
                 pauseStage.clear();
                 InputMultiplexer multiplexer = new InputMultiplexer();
                 multiplexer.addProcessor(stage);
                 multiplexer.addProcessor(GameView.this);
                 Gdx.input.setInputProcessor(multiplexer);
-
             }
         });
+    }
 
-        int finalNum1 = num3;
-        ability3.addListener(new ClickListener() {
-            @Override
-            public void clicked(InputEvent event, float x, float y) {
-                App.loggedInUser.setAbility(finalNum1);
-                switch (finalNum1) {
-                    case 0:
-                        abilities.add("vitality");
-                        break;
-                    case 1:
-                        abilities.add("Damager");
-                        break;
-                    case 2:
-                        abilities.add("Procrease");
-                        break;
-                    case 3:
-                        abilities.add("Aamogrease");
-                        break;
-                    case 4:
-                        abilities.add("Speedy");
-                        break;
-                }
-                isLevelUp = 0;
-                UserRepo.saveUser(App.loggedInUser);
-                first = true;
-                isPaused = false;
-                pauseStage.clear();
-                InputMultiplexer multiplexer = new InputMultiplexer();
-                multiplexer.addProcessor(stage);
-                multiplexer.addProcessor(GameView.this);
-                Gdx.input.setInputProcessor(multiplexer);
-
-            }
-        });
-
+    private void setupExitButton(Skin skin, Table table) {
+        TextButton exitButton = new TextButton("Exit", skin);
         exitButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 isLevelUp = 0;
                 first = true;
-                Main.getMain().setScreen(new PreGameView(new PreGameMenuController(), GameAssetManager.getGameAssetManager().getSkin()));
+                Main.getMain().setScreen(new PreGameView(
+                    new PreGameMenuController(),
+                    GameAssetManager.getGameAssetManager().getSkin()
+                ));
             }
         });
-
-        pauseTable.add(ability1).pad(10);
-        pauseTable.row();
-        pauseTable.add(ability2).pad(10);
-        pauseTable.row();
-        pauseTable.add(ability3).pad(10);
-        pauseTable.row();
-        pauseTable.add(exitButton).pad(10);
-
-        pauseStage.addActor(pauseTable);
+        table.add(exitButton).pad(10);
     }
 
     private void createRealPauseMenu(Skin skin) {
         Main.setCustomCursor("m2.png");
         realPauseMenuStage = new Stage(new ScreenViewport());
         Table pauseTable = new Table();
+
         if (App.loggedInUser.isPlaySFX())
             levelupSound.play();
 
-        CheckBox classic;
-        if (StartView.getLanguge() == 1)
-            classic = new CheckBox("Classic?", skin);
-        else
-            classic = new CheckBox("Classique?", skin);
+        addPauseBackground();
+        pauseTable.setFillParent(true);
 
+        CheckBox classic = createClassicCheckBox(skin);
+        TextButton backButton = createBackButton(skin);
+        TextButton exitButton = createExitButton(skin);
+        TextButton saveButton = createSaveButton(skin);
+
+        addPauseButtonListeners(backButton, exitButton, saveButton);
+        addClassicToggleListener(classic);
+
+        stylePauseButtons(backButton, exitButton, saveButton, classic);
+
+        realPauseMenuStage.addActor(backButton);
+        realPauseMenuStage.addActor(exitButton);
+        realPauseMenuStage.addActor(saveButton);
+        realPauseMenuStage.addActor(classic);
+
+        addAbilityLabelsToPauseTable(pauseTable, skin);
+
+        realPauseMenuStage.addActor(pauseTable);
+    }
+
+    private void addPauseBackground() {
         Texture backgroundTexture = new Texture("pause.png");
         Image backgroundImage = new Image(backgroundTexture);
         backgroundImage.setSize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         realPauseMenuStage.addActor(backgroundImage);
-        pauseTable.setFillParent(true);
+    }
 
-        TextButton exitButton;
+    private CheckBox createClassicCheckBox(Skin skin) {
         if (StartView.getLanguge() == 1)
-            exitButton = new TextButton("Exit", skin);
+            return new CheckBox("Classic?", skin);
         else
-            exitButton = new TextButton("Quitter", skin);
+            return new CheckBox("Classique?", skin);
+    }
 
-        TextButton backButton;
+    private TextButton createExitButton(Skin skin) {
         if (StartView.getLanguge() == 1)
-            backButton = new TextButton("Back", skin);
+            return new TextButton("Exit", skin);
         else
-            backButton = new TextButton("Retour", skin);
+            return new TextButton("Quitter", skin);
+    }
 
-        TextButton saveButton;
+    private TextButton createBackButton(Skin skin) {
         if (StartView.getLanguge() == 1)
-            saveButton = new TextButton("Save", skin);
+            return new TextButton("Back", skin);
         else
-            saveButton = new TextButton("Sauvegarder", skin);
+            return new TextButton("Retour", skin);
+    }
 
+    private TextButton createSaveButton(Skin skin) {
+        if (StartView.getLanguge() == 1)
+            return new TextButton("Save", skin);
+        else
+            return new TextButton("Sauvegarder", skin);
+    }
 
-        backButton.addListener(new ClickListener() {
+    private void addPauseButtonListeners(TextButton back, TextButton exit, TextButton save) {
+        back.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 isRealPause = false;
@@ -610,11 +557,10 @@ public class GameView implements Screen, InputProcessor {
                 multiplexer.addProcessor(stage);
                 multiplexer.addProcessor(GameView.this);
                 Gdx.input.setInputProcessor(multiplexer);
-
             }
         });
 
-        saveButton.addListener(new ClickListener() {
+        save.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 isRealPause = false;
@@ -625,16 +571,17 @@ public class GameView implements Screen, InputProcessor {
                 Gdx.input.setInputProcessor(multiplexer);
 
                 App.loggedInUser.setTime((int) timeBar.getValue());
-                App.loggedInUser.setScore(App.loggedInUser.getKill() * ((int) (finalElapsedTime)));
-
+                App.loggedInUser.setScore(App.loggedInUser.getKill() * ((int) finalElapsedTime));
                 controller.saveGame();
 
-                Main.getMain().setScreen(new PreGameView(new PreGameMenuController(), GameAssetManager.getGameAssetManager().getSkin()));
+                Main.getMain().setScreen(new PreGameView(
+                    new PreGameMenuController(),
+                    GameAssetManager.getGameAssetManager().getSkin()
+                ));
             }
         });
 
-
-        exitButton.addListener(new ClickListener() {
+        exit.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 isLevelUp = 0;
@@ -643,7 +590,9 @@ public class GameView implements Screen, InputProcessor {
                 App.loggedInUser.setHealth(0);
             }
         });
+    }
 
+    private void addClassicToggleListener(CheckBox classic) {
         classic.addListener(event -> {
             Main.grayscaleEnabled = classic.isChecked();
 
@@ -659,78 +608,97 @@ public class GameView implements Screen, InputProcessor {
             }
             return false;
         });
+    }
 
+    private void stylePauseButtons(TextButton back, TextButton exit, TextButton save, CheckBox classic) {
+        back.setSize(300, 100);
+        back.setPosition(1300, 160);
+        back.setColor(Color.YELLOW);
 
-        backButton.setSize(300, 100);
-        backButton.setPosition(1300, 160);
-        backButton.setColor(Color.YELLOW);
+        exit.setSize(300, 100);
+        exit.setPosition(1300, 50);
+        exit.setColor(Color.YELLOW);
 
-        exitButton.setSize(300, 100);
-        exitButton.setPosition(1300, 50);
-        exitButton.setColor(Color.YELLOW);
-
-        saveButton.setSize(300, 100);
-        saveButton.setPosition(1300, 270);
-        saveButton.setColor(Color.YELLOW);
+        save.setSize(300, 100);
+        save.setPosition(1300, 270);
+        save.setColor(Color.YELLOW);
 
         classic.setSize(300, 100);
         classic.setPosition(100, 300);
         classic.setColor(Color.PINK);
+    }
 
-        realPauseMenuStage.addActor(backButton);
-        realPauseMenuStage.addActor(exitButton);
-        realPauseMenuStage.addActor(classic);
-        realPauseMenuStage.addActor(saveButton);
-
-        pauseTable.setFillParent(true);
-        pauseTable.top().right().padRight(100).padTop(100);
-
+    private void addAbilityLabelsToPauseTable(Table table, Skin skin) {
+        table.setFillParent(true);
+        table.top().right().padRight(100).padTop(100);
         for (String ability : abilities) {
             Label label = new Label(ability, skin);
-            pauseTable.add(label).right();
+            table.add(label).right();
             label.setColor(Color.NAVY);
             label.setFontScale(1.7f);
-            pauseTable.row();
+            table.row();
         }
-
-        realPauseMenuStage.addActor(pauseTable);
     }
 
     private void createLoserMenu(Skin skin) {
         Main.setCustomCursor("m2.png");
         loseStage = new Stage(new ScreenViewport());
         Table pauseTable = new Table();
+
         if (App.loggedInUser.isPlaySFX())
             loseSound.play();
 
+        addLoserBackground();
+        pauseTable.setFillParent(true);
+
+        TextButton exitButton = createExitButtonLoser(skin);
+        addExitListener(exitButton);
+        styleExitButton(exitButton);
+        loseStage.addActor(exitButton);
+
+        addUserLabels(skin);
+
+        loseStage.addActor(pauseTable);
+    }
+
+    private void addLoserBackground() {
         Texture backgroundTexture = new Texture("loser.png");
         Image backgroundImage = new Image(backgroundTexture);
         backgroundImage.setSize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         loseStage.addActor(backgroundImage);
-        pauseTable.setFillParent(true);
+    }
 
+    private TextButton createExitButtonLoser(Skin skin) {
+        return new TextButton("Exit", skin);
+    }
 
-        TextButton exitButton = new TextButton("Exit", skin);
-
-
+    private void addExitListener(TextButton exitButton) {
         exitButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                Main.getMain().setScreen(new PreGameView(new PreGameMenuController(), GameAssetManager.getGameAssetManager().getSkin()));
+                Main.getMain().setScreen(
+                    new PreGameView(
+                        new PreGameMenuController(),
+                        GameAssetManager.getGameAssetManager().getSkin()
+                    )
+                );
             }
         });
+    }
 
-
-        //pauseTable.add(exitButton).pad(10);
+    private void styleExitButton(TextButton exitButton) {
         exitButton.setSize(400, 100);
         exitButton.setPosition(1000, 100);
         exitButton.setColor(Color.FIREBRICK);
+    }
 
+    private void addUserLabels(Skin skin) {
         Label usernameLabel = new Label(App.loggedInUser.getUsername(), skin);
         usernameLabel.setSize(300, 100);
         usernameLabel.setFontScale(1.7f);
         usernameLabel.setPosition(100, 400);
         usernameLabel.setColor(Color.NAVY);
+        loseStage.addActor(usernameLabel);
 
         App.loggedInUser.setTime((int) finalElapsedTime);
         UserRepo.saveUser(App.loggedInUser);
@@ -739,13 +707,14 @@ public class GameView implements Screen, InputProcessor {
         timeLabel.setColor(Color.BLACK);
         timeLabel.setSize(300, 100);
         timeLabel.setPosition(100, 350);
+        loseStage.addActor(timeLabel);
 
-        UserRepo.saveUser(App.loggedInUser);
         Label killLabel = new Label("Kill: " + App.loggedInUser.getKill(), skin);
         killLabel.setFontScale(1.7f);
         killLabel.setColor(Color.SKY);
         killLabel.setSize(300, 100);
         killLabel.setPosition(100, 300);
+        loseStage.addActor(killLabel);
 
         App.loggedInUser.setScore(App.loggedInUser.getKill() * ((int) (finalElapsedTime)));
         UserRepo.saveUser(App.loggedInUser);
@@ -754,15 +723,7 @@ public class GameView implements Screen, InputProcessor {
         scoreLabel.setColor(Color.VIOLET);
         scoreLabel.setSize(300, 100);
         scoreLabel.setPosition(100, 250);
-
-
-        loseStage.addActor(usernameLabel);
-        loseStage.addActor(exitButton);
-        loseStage.addActor(timeLabel);
-        loseStage.addActor(killLabel);
         loseStage.addActor(scoreLabel);
-
-
     }
 
     private void createWinnerMenu(Skin skin) {
@@ -770,35 +731,58 @@ public class GameView implements Screen, InputProcessor {
         winStage = new Stage(new ScreenViewport());
         Table pauseTable = new Table();
         winSound.play();
+
+        addWinnerBackground();
+        pauseTable.setFillParent(true);
+
+        TextButton exitButton = createExitButtonWinner(skin);
+        addExitListenerWinner(exitButton);
+        styleExitButtonWinner(exitButton);
+        winStage.addActor(exitButton);
+
+        addWinnerLabels(skin);
+
+        winStage.addActor(pauseTable);
+    }
+
+    private void addWinnerBackground() {
         Texture backgroundTexture = new Texture("winner.png");
         Image backgroundImage = new Image(backgroundTexture);
         backgroundImage.setSize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         winStage.addActor(backgroundImage);
-        pauseTable.setFillParent(true);
+    }
 
+    private TextButton createExitButtonWinner(Skin skin) {
+        return new TextButton("Exit", skin);
+    }
 
-        TextButton exitButton = new TextButton("Exit", skin);
-
-
+    private void addExitListenerWinner(TextButton exitButton) {
         exitButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                Main.getMain().setScreen(new PreGameView(new PreGameMenuController(), GameAssetManager.getGameAssetManager().getSkin()));
+                Main.getMain().setScreen(
+                    new PreGameView(
+                        new PreGameMenuController(),
+                        GameAssetManager.getGameAssetManager().getSkin()
+                    )
+                );
             }
         });
+    }
 
-
-        //pauseTable.add(exitButton).pad(10);
+    private void styleExitButtonWinner(TextButton exitButton) {
         exitButton.setSize(400, 100);
         exitButton.setPosition(1000, 100);
         exitButton.setColor(Color.FOREST);
-        winStage.addActor(exitButton);
+    }
 
+    private void addWinnerLabels(Skin skin) {
         Label usernameLabel = new Label(App.loggedInUser.getUsername(), skin);
         usernameLabel.setSize(300, 100);
         usernameLabel.setFontScale(1.7f);
         usernameLabel.setPosition(100, 400);
         usernameLabel.setColor(Color.WHITE);
+        winStage.addActor(usernameLabel);
 
         App.loggedInUser.setTime((int) finalElapsedTime);
         UserRepo.saveUser(App.loggedInUser);
@@ -807,12 +791,14 @@ public class GameView implements Screen, InputProcessor {
         timeLabel.setColor(Color.TEAL);
         timeLabel.setSize(300, 100);
         timeLabel.setPosition(100, 350);
+        winStage.addActor(timeLabel);
 
         Label killLabel = new Label("Kill: " + App.loggedInUser.getKill(), skin);
         killLabel.setFontScale(1.7f);
         killLabel.setColor(Color.RED);
         killLabel.setSize(300, 100);
         killLabel.setPosition(100, 300);
+        winStage.addActor(killLabel);
 
         App.loggedInUser.setScore(App.loggedInUser.getKill() * ((int) (finalElapsedTime)));
         UserRepo.saveUser(App.loggedInUser);
@@ -821,13 +807,7 @@ public class GameView implements Screen, InputProcessor {
         scoreLabel.setColor(Color.GOLD);
         scoreLabel.setSize(300, 100);
         scoreLabel.setPosition(100, 250);
-
-        winStage.addActor(usernameLabel);
-        winStage.addActor(exitButton);
-        winStage.addActor(timeLabel);
-        winStage.addActor(killLabel);
         winStage.addActor(scoreLabel);
-
     }
 
     @Override
@@ -855,6 +835,18 @@ public class GameView implements Screen, InputProcessor {
 
     @Override
     public boolean keyDown(int keycode) {
+        if (handleEscapeKey(keycode)) return true;
+        if (handleCommaKey(keycode)) return true;
+        if (handleF2Key(keycode)) return true;
+        if (handleSpaceKey()) return true;
+        if (handleF1Key(keycode)) return true;
+        if (handleReloadKeys(keycode)) return true;
+        if (handleBKey(keycode)) return true;
+
+        return false;
+    }
+
+    private boolean handleEscapeKey(int keycode) {
         if (keycode == Input.Keys.ESCAPE) {
             if (!isPaused) {
                 isPaused = true;
@@ -867,17 +859,34 @@ public class GameView implements Screen, InputProcessor {
             }
             return true;
         }
+        return false;
+    }
+
+    private boolean handleCommaKey(int keycode) {
         if (keycode == Input.Keys.COMMA) {
             reduceTime(60);
             return true;
         }
+        return false;
+    }
+
+    private boolean handleF2Key(int keycode) {
         if (keycode == Input.Keys.F2) {
             App.loggedInUser.setKill(App.loggedInUser.getKill() + 5);
             return true;
         }
+        return false;
+    }
+
+    private boolean handleSpaceKey() {
         if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) {
             controller.setAutoAimEnabled(!controller.isAutoAimEnabled());
+            return true;
         }
+        return false;
+    }
+
+    private boolean handleF1Key(int keycode) {
         if (keycode == Input.Keys.F1) {
             if (!isRealPause) {
                 isRealPause = true;
@@ -889,12 +898,21 @@ public class GameView implements Screen, InputProcessor {
             }
             return true;
         }
+        return false;
+    }
 
+    private boolean handleReloadKeys(int keycode) {
         if (keycode == Input.Keys.R || keycode == Input.Keys.T) {
             App.loggedInUser.setReloadR(true);
+            return true;
         }
-        if(keycode == Input.Keys.B) {
+        return false;
+    }
+
+    private boolean handleBKey(int keycode) {
+        if (keycode == Input.Keys.B) {
             setSoonBasFight(true);
+            return true;
         }
         return false;
     }
