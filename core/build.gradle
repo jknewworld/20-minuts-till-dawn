@@ -1,0 +1,65 @@
+//[compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
+//eclipse.project.name = appName + '-core'
+
+//dependencies {
+//  api "com.badlogicgames.gdx:gdx:$gdxVersion"
+//
+//  if(enableGraalNative == 'true') {
+//    implementation "io.github.berstanio:gdx-svmhelper-annotations:$graalHelperVersion"
+//  }
+//  implementation 'com.fasterxml.jackson.core:jackson-databind:2.15.2'
+//}
+plugins {
+  id 'java'
+}
+
+group 'org.example'
+version '1.0-SNAPSHOT'
+
+repositories {
+  mavenCentral()
+}
+
+dependencies {
+  api "com.badlogicgames.gdx:gdx:$gdxVersion"
+
+  if (enableGraalNative == 'true') {
+    implementation "io.github.berstanio:gdx-svmhelper-annotations:$graalHelperVersion"
+  }
+  implementation 'com.fasterxml.jackson.core:jackson-databind:2.15.2'
+  implementation "com.badlogicgames.box2dlights:box2dlights:1.5"
+  implementation 'com.google.code.gson:gson:2.10.1'
+  implementation "com.badlogicgames.gdx:gdx:$gdxVersion"
+  implementation "com.badlogicgames.gdx:gdx-freetype:$gdxVersion"
+  implementation "com.badlogicgames.gdx:gdx-freetype-platform:$gdxVersion:natives-desktop"
+  implementation "com.badlogicgames.gdx:gdx-backend-lwjgl3:$gdxVersion"
+  implementation "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop"
+
+  implementation 'com.google.code.gson:gson:2.8.9'
+  testImplementation 'junit:junit:4.13.2'
+  implementation 'com.h2database:h2:2.1.214'
+  implementation 'org.jdbi:jdbi3-core:3.38.0'
+  implementation 'com.fasterxml.jackson.core:jackson-databind:2.15.0'
+  implementation 'org.jdbi:jdbi3-sqlobject:3.38.0'
+  implementation 'org.slf4j:slf4j-nop:2.0.17'
+  implementation 'dev.morphia.morphia:morphia-core:2.3.0'
+  implementation 'org.mongodb:mongodb-driver-sync:4.9.0'
+  testImplementation 'org.junit.jupiter:junit-jupiter:5.9.1'
+  implementation 'io.github.cdimascio:java-dotenv:5.2.2'
+  implementation 'org.json:json:20231013'
+  runtimeOnly 'org.slf4j:slf4j-simple:2.0.0-alpha1'
+  implementation 'ch.qos.logback:logback-classic:1.2.11'
+}
+
+java {
+  toolchain {
+    languageVersion = JavaLanguageVersion.of(21)
+  }
+}
+
+tasks.named('test') {
+  useJUnitPlatform()
+}
+
+
+
