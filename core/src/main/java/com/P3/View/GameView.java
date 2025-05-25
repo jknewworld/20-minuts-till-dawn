@@ -120,11 +120,12 @@ public class GameView implements Screen, InputProcessor {
 
         // XP Bar
         xpBar = new ProgressBar(0f, (App.loggedInUser.getLevel() * 20) + 1 * 20, 1f, false,
-            skin.get("default-vertical", ProgressBar.ProgressBarStyle.class));
+            skin.get("default-horizontal", ProgressBar.ProgressBarStyle.class));
         xpBar.setValue(xp);
         xpBar.setAnimateDuration(0.1f);
+        xpBar.setColor(Color.PURPLE);
         xpBar.setWidth(400);
-        xpBar.setHeight(150);
+        xpBar.setHeight(500);
 
         // Label
         if (StartView.getLanguge() == 1)
@@ -188,9 +189,9 @@ public class GameView implements Screen, InputProcessor {
         healthBar.setSize(300, 160);
         healthBar.setPosition(30, 800);
         stage.addActor(healthBar);
-        xpBar.setSize(200, 300);
+        xpBar.setSize(200, 500);
         xpBar.setPosition(30, 500);
-        xpBar.setColor(Color.SLATE);
+        xpBar.setColor(Color.GRAY);
         stage.addActor(xpBar);
 
         stage.addActor(table);
@@ -336,6 +337,7 @@ public class GameView implements Screen, InputProcessor {
         timeBar.setValue(duration - elapsedTime);
         float currentHealth = App.loggedInUser.getHealth();
         healthBar.setValue(currentHealth);
+        xpBar.setValue(xp);
         if (App.loggedInUser.getHealth() == 0) {
             finalElapsedTime = elapsedTime;
             isLose = true;
@@ -353,7 +355,8 @@ public class GameView implements Screen, InputProcessor {
         float radius = 200f;
 
         Main.getBatch().setColor(1, 1, 1, 1f);
-        Main.getBatch().draw(lightMaskTexture, centerX - radius, centerY - radius + 50, radius * 2, radius * 2);
+        Main.getBatch().draw(lightMaskTexture, centerX - radius, centerY - radius + 50, radius * 2,
+            radius * 2);
 
         Main.getBatch().setBlendFunction(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
 
