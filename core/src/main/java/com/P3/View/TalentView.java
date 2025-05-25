@@ -32,22 +32,32 @@ public class TalentView implements Screen {
         this.controller = controller;
         FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("Font/ChevyRay - Express.ttf"));
         FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
-        parameter.size = 32;
+        parameter.size = 40;
         BitmapFont bigFont = generator.generateFont(parameter);
         generator.dispose();
-        Label.LabelStyle style = new Label.LabelStyle();
+        Label.LabelStyle labelStyle = new Label.LabelStyle();
+        labelStyle.font = bigFont;
+        labelStyle.fontColor = Color.PURPLE;
+        generator = new FreeTypeFontGenerator(Gdx.files.internal("Font/IMFePIit28P.ttf"));
+        parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
+        parameter.size = 65;
+        bigFont = generator.generateFont(parameter);
+        generator.dispose();
+        TextButton.TextButtonStyle style = new TextButton.TextButtonStyle();
         style.font = bigFont;
-        style.fontColor = Color.GRAY;
+        style.fontColor = Color.FOREST;
+        style.overFontColor = Color.GREEN;
+        style.downFontColor = Color.GREEN;
         if (StartView.getLanguge() == 1) {
             this.backgroundTexture = new Texture(Gdx.files.internal("talentEN.png"));
-            this.backButton = new TextButton("Back", skin);
+            this.backButton = new TextButton("Back", style);
         }
         else if (StartView.getLanguge() == 2) {
             this.backgroundTexture = new Texture(Gdx.files.internal("talentF.png"));
-            this.backButton = new TextButton("Retour", skin);
+            this.backButton = new TextButton("Retour", style);
         }
         this.backgroundImage = new Image(backgroundTexture);
-        this.label = new Label("", style);
+        this.label = new Label("", labelStyle);
         this.table = new Table();
 
         controller.setView(this);
@@ -62,7 +72,7 @@ public class TalentView implements Screen {
         stage.addActor(backgroundImage);
 
         backButton.setSize(200, 100);
-        backButton.setPosition(1100,380);
+        backButton.setPosition(1500,200);
         stage.addActor(backButton);
 
         if(App.loggedInUser.isKeyboard())

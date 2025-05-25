@@ -33,48 +33,60 @@ import java.util.Random;
 import static com.badlogic.gdx.graphics.g3d.particles.ParticleShader.Inputs.screenWidth;
 
 public class GameView implements Screen, InputProcessor {
-
+    // Start Part
     private Stage stage;
     private GameController controller;
-    private float elapsedTime = 0f;
-    private float duration;
-    private ProgressBar timeBar;
-    private ProgressBar healthBar;
-    private boolean isPaused = false;
-    private TextButton ability1;
-    private TextButton ability2;
-    private TextButton ability3;
     private Stage pauseStage;
     private Stage loseStage;
     private Stage winStage;
     private Stage realPauseMenuStage;
-    private Texture darkOverlayTexture;
-    private Texture lightMaskTexture;
+    private OrthographicCamera camera;
+    private Viewport viewport;
+    public Table table;
+    int screenWidth = Gdx.graphics.getWidth();
+    int screenHeight = Gdx.graphics.getHeight();
+    private boolean extraLifeUsed = false;
+    private ArrayList<String> abilities = new ArrayList<>();
+    private float finalElapsedTime = 0;
+    private boolean first = true;
+
+    // Time
+    private float elapsedTime = 0f;
+    private float duration;
+
+    // ProgressBar
+    private ProgressBar timeBar;
+    private ProgressBar healthBar;
+    private boolean isPaused = false;
+
+    // Label
     private Label killLabel;
     private Label level;
+    private Label ammoLabel;
+
+    // Button
+    private TextButton ability1;
+    private TextButton ability2;
+    private TextButton ability3;
+
+    // Picture
+    private Texture darkOverlayTexture;
+    private Texture lightMaskTexture;
+
+    // Chang Stage
     private boolean isLose = false;
     private boolean isWin = false;
     private boolean isRealPause = false;
     private static int isLevelUp = 0;
-    int screenWidth = Gdx.graphics.getWidth();
-    int screenHeight = Gdx.graphics.getHeight();
-    private boolean first = true;
-    private boolean canDie = true;
-    private boolean extraLifeUsed = false;
-    private ArrayList<String> abilities = new ArrayList<>();
-    private float finalElapsedTime = 0;
+
+    // SFX
     private Sound loseSound;
     private Sound winSound;
     private Sound levelupSound;
-    private Label ammoLabel;
-    private OrthographicCamera camera;
-
-    private Viewport viewport;
-
-    public Table table;
 
     public GameView(GameController controller, Skin skin) {
         this.controller = controller;
+        // SFX
         this.loseSound = Gdx.audio.newSound(Gdx.files.internal("sfx/lose.wav"));
         this.winSound = Gdx.audio.newSound(Gdx.files.internal("sfx/win.wav"));
         this.levelupSound = Gdx.audio.newSound(Gdx.files.internal("sfx/levelup.wav"));
@@ -82,25 +94,34 @@ public class GameView implements Screen, InputProcessor {
 
         this.duration = App.loggedInUser.getTime();
 
-        timeBar = new ProgressBar(0f, App.loggedInUser.getTime(), 1f, false, skin.get("mana", ProgressBar.ProgressBarStyle.class));
+        // TimeBar
+        timeBar = new ProgressBar(0f, App.loggedInUser.getMaxTime(), 1f, false,
+            skin.get("mana", ProgressBar.ProgressBarStyle.class));
         timeBar.setValue(App.loggedInUser.getTime());
         timeBar.setAnimateDuration(0.1f);
         timeBar.setWidth(400);
         timeBar.setHeight(300);
 
-        healthBar = new ProgressBar(0f, App.loggedInUser.getHealth(), 1f, false, skin.get("health", ProgressBar.ProgressBarStyle.class));
+        // HealthBar
+        healthBar = new ProgressBar(0f, App.loggedInUser.getHealth(), 1f, false,
+            skin.get("health", ProgressBar.ProgressBarStyle.class));
         healthBar.setValue(App.loggedInUser.getHealth());
         healthBar.setAnimateDuration(0.1f);
         healthBar.setWidth(400);
         healthBar.setHeight(300);
+
+        // Label
         if (StartView.getLanguge() == 1)
-            killLabel = new Label("Killed " + App.loggedInUser.getKill() + " beasts — even Orcs would be jealous!", skin);
+            killLabel = new Label("Killed " + App.loggedInUser.getKill() + " beasts — even Orcs would be jealous!"
+                , skin);
         else if (StartView.getLanguge() == 2)
-            killLabel = new Label("Monstres vaincus " + App.loggedInUser.getKill() + " — Pas mal pour un hobbit !", skin);
+            killLabel = new Label("Monstres vaincus " + App.loggedInUser.getKill() + " — Pas mal pour un hobbit !"
+                , skin);
 
         level = new Label("Level " + App.loggedInUser.getLevel(), skin);
         this.ammoLabel = new Label("Ammo " + App.loggedInUser.getAmmo(), skin);
 
+        // Cammera
         Pixmap pixmap = new Pixmap(1, 1, Pixmap.Format.RGBA8888);
         pixmap.setColor(0, 0, 0, 1);
         pixmap.fill();
@@ -108,8 +129,7 @@ public class GameView implements Screen, InputProcessor {
         pixmap.dispose();
 
         lightMaskTexture = new Texture(Gdx.files.internal("l.png"));
-
-
+        // Tabel
         this.table = new Table();
         camera = new OrthographicCamera();
         camera.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
@@ -118,11 +138,6 @@ public class GameView implements Screen, InputProcessor {
 
     }
 
-    public Vector2 worldToScreen(Vector2 worldPos) {
-        Vector3 projected = new Vector3(worldPos.x, worldPos.y, 0);
-        camera.project(projected);
-        return new Vector2(projected.x, Gdx.graphics.getHeight() - projected.y);
-    }
 
     @Override
     public void show() {
@@ -174,51 +189,8 @@ public class GameView implements Screen, InputProcessor {
         ScreenUtils.clear(0, 0, 0, 1);
         Main.getBatch().begin();
 
-        if (!isPaused && !isLose && !isWin && !isRealPause) {
-            controller.updateGame();
-            elapsedTime += delta;
-            timeBar.setValue(duration - elapsedTime);
-            float currentHealth = App.loggedInUser.getHealth();
-            healthBar.setValue(currentHealth);
-            if (App.loggedInUser.getHealth() == 0) {
-                finalElapsedTime = elapsedTime;
-                isLose = true;
-                createLoserMenu(GameAssetManager.getGameAssetManager().getSkin());
-                Gdx.input.setInputProcessor(loseStage);
-            }
-
-            Main.getBatch().setColor(0, 0, 0, 0.4f);
-            Main.getBatch().draw(darkOverlayTexture, 0, 0, screenWidth, screenHeight);
-
-            Main.getBatch().setBlendFunction(GL20.GL_ONE, GL20.GL_ONE);
-
-            float centerX = (float) Gdx.graphics.getWidth() / 2;
-            float centerY = (float) Gdx.graphics.getHeight() / 2;
-            float radius = 200f;
-
-            Main.getBatch().setColor(1, 1, 1, 1f);
-            Main.getBatch().draw(lightMaskTexture, centerX - radius, centerY - radius +50, radius * 2, radius * 2);
-
-            Main.getBatch().setBlendFunction(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
-
-            Main.getBatch().setColor(1, 1, 1, 1f);
-
-            if (isLevelUp == 1) {
-                isPaused = true;
-                createPauseMenu(GameAssetManager.getGameAssetManager().getSkin());
-                Gdx.input.setInputProcessor(pauseStage);
-            }
-
-            if (elapsedTime >= duration) {
-                finalElapsedTime = elapsedTime;
-                isWin = true;
-                createWinnerMenu(GameAssetManager.getGameAssetManager().getSkin());
-                Gdx.input.setInputProcessor(winStage);
-                winStage.act(Math.min(Gdx.graphics.getDeltaTime(), 1 / 30f));
-                winStage.draw();
-            }
-
-        }
+        if (!isPaused && !isLose && !isWin && !isRealPause)
+            normalMode(delta);
 
         if (StartView.getLanguge() == 1)
             killLabel.setText("Killed " + App.loggedInUser.getKill() + " beasts — even Orcs would be jealous!");
@@ -232,7 +204,6 @@ public class GameView implements Screen, InputProcessor {
 
         if (!isPaused && !isLose && !isWin && isLevelUp == 0 && !isRealPause) {
             stage.act(Math.min(Gdx.graphics.getDeltaTime(), 1 / 30f));
-
             if (Main.grayscaleEnabled && Main.grayscaleShader != null && Main.grayscaleShader.isCompiled())
                 stage.getBatch().setShader(Main.grayscaleShader);
             else
@@ -286,6 +257,51 @@ public class GameView implements Screen, InputProcessor {
             pauseStage.draw();
         }
 
+    }
+
+    public void normalMode(float delta) {
+        controller.updateGame();
+        elapsedTime += delta;
+        timeBar.setValue(duration - elapsedTime);
+        float currentHealth = App.loggedInUser.getHealth();
+        healthBar.setValue(currentHealth);
+        if (App.loggedInUser.getHealth() == 0) {
+            finalElapsedTime = elapsedTime;
+            isLose = true;
+            createLoserMenu(GameAssetManager.getGameAssetManager().getSkin());
+            Gdx.input.setInputProcessor(loseStage);
+        }
+
+        Main.getBatch().setColor(0, 0, 0, 0.4f);
+        Main.getBatch().draw(darkOverlayTexture, 0, 0, screenWidth, screenHeight);
+
+        Main.getBatch().setBlendFunction(GL20.GL_ONE, GL20.GL_ONE);
+
+        float centerX = (float) Gdx.graphics.getWidth() / 2;
+        float centerY = (float) Gdx.graphics.getHeight() / 2;
+        float radius = 200f;
+
+        Main.getBatch().setColor(1, 1, 1, 1f);
+        Main.getBatch().draw(lightMaskTexture, centerX - radius, centerY - radius + 50, radius * 2, radius * 2);
+
+        Main.getBatch().setBlendFunction(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
+
+        Main.getBatch().setColor(1, 1, 1, 1f);
+
+        if (isLevelUp == 1) {
+            isPaused = true;
+            createPauseMenu(GameAssetManager.getGameAssetManager().getSkin());
+            Gdx.input.setInputProcessor(pauseStage);
+        }
+
+        if (elapsedTime >= duration) {
+            finalElapsedTime = elapsedTime;
+            isWin = true;
+            createWinnerMenu(GameAssetManager.getGameAssetManager().getSkin());
+            Gdx.input.setInputProcessor(winStage);
+            winStage.act(Math.min(Gdx.graphics.getDeltaTime(), 1 / 30f));
+            winStage.draw();
+        }
     }
 
     private void createPauseMenu(Skin skin) {
@@ -785,12 +801,9 @@ public class GameView implements Screen, InputProcessor {
             App.loggedInUser.setKill(App.loggedInUser.getKill() + 5);
             return true;
         }
-
         if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) {
             controller.setAutoAimEnabled(!controller.isAutoAimEnabled());
         }
-
-
         if (keycode == Input.Keys.F1) {
             if (!isRealPause) {
                 isRealPause = true;
@@ -801,6 +814,10 @@ public class GameView implements Screen, InputProcessor {
                 Gdx.input.setInputProcessor(stage);
             }
             return true;
+        }
+
+        if (keycode == Input.Keys.R) {
+            App.loggedInUser.setReloadR(App.loggedInUser.isReloadR());
         }
         return false;
     }
@@ -871,6 +888,12 @@ public class GameView implements Screen, InputProcessor {
 
     public void setViewport(Viewport viewport) {
         this.viewport = viewport;
+    }
+
+    public Vector2 worldToScreen(Vector2 worldPos) {
+        Vector3 projected = new Vector3(worldPos.x, worldPos.y, 0);
+        camera.project(projected);
+        return new Vector2(projected.x, Gdx.graphics.getHeight() - projected.y);
     }
 
 }

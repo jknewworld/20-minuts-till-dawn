@@ -16,6 +16,11 @@ public class Elder {
     private boolean shouldBeRemoved = false;
     private float fireRate = 5f;
     private boolean isSeed = false;
+    float timeSinceLastDash = 0;
+    private float dashTimer = 0;
+    private boolean isDashing = false;
+
+
 
     private float time;
     private CollisionRect rect;
@@ -155,5 +160,29 @@ public class Elder {
 
     public void setSeed(boolean seed) {
         isSeed = seed;
+    }
+
+    public float getTimeSinceLastDash() {
+        return timeSinceLastDash;
+    }
+
+    public void setTimeSinceLastDash(float timeSinceLastDash) {
+        this.timeSinceLastDash = timeSinceLastDash;
+    }
+
+    public boolean isDashing() {
+        return isDashing;
+    }
+
+    public void setDashing(boolean dashing) {
+        isDashing = dashing;
+    }
+
+    public float getDashTimer() {
+        return dashTimer;
+    }
+
+    public void setDashTimer(float dashTimer) {
+        this.dashTimer = dashTimer;
     }
 }

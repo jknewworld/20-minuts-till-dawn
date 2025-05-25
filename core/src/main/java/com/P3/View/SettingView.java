@@ -27,7 +27,6 @@ public class SettingView implements Screen {
     private Image backgroundImage;
     private Stage stage;
     private Music music;
-    private Music music1;
     private Slider volumeSlider;
     private TextButton music1Button;
     private TextButton music2Button;
@@ -48,6 +47,7 @@ public class SettingView implements Screen {
         this.controller = controller;
         this.backgroundTexture = new Texture(Gdx.files.internal("settingbackground.png"));
         this.backgroundImage = new Image(backgroundTexture);
+        this.music = Gdx.audio.newMusic(Gdx.files.internal("lala.mp3"));
         if (StartView.getLanguge() == 1) {
             this.music1Button = new TextButton("Music1", skin);
             this.music2Button = new TextButton("Music2", skin);
@@ -74,7 +74,7 @@ public class SettingView implements Screen {
             this.mouseLeft = new CheckBox("bouton gauche de la souris?", skin);
             mouseLeft.setChecked(App.mouseLeft);
             this.keyboardBox = new SelectBox<>(skin);
-            keyboardBox.setItems("Choisis tes boutons", "W,D,S,A", "I,L,K,J");
+            keyboardBox.setItems("Choisis tes boutons", "W,D,S,A,  R", "I,L,K,J,  T");
         }
         this.table = new Table();
 
@@ -90,7 +90,6 @@ public class SettingView implements Screen {
         stage.addActor(backgroundImage);
 
 
-        table.setFillParent(true);
         volumeSlider = new Slider(0f, 2f, 0.5f, false, GameAssetManager.getGameAssetManager().getSkin());
         volumeSlider.setValue(0.5f);
         volumeSlider.addListener(event -> {
@@ -98,15 +97,19 @@ public class SettingView implements Screen {
             return false;
         });
 
-        table.add(volumeSlider).width(700);
+        volumeSlider.setSize(500, 100);
+        volumeSlider.setPosition(200, 420);
+        stage.addActor(volumeSlider);
+
+
+        table.setFillParent(true);
+        table.add(sfxCheckBox).width(500).height(70);
         table.row().pad(10, 0, 10, 0);
-        table.add(sfxCheckBox).width(500).height(100);
+        table.add(autoReloadCheckbox).width(500).height(70);
         table.row().pad(10, 0, 10, 0);
-        table.add(autoReloadCheckbox).width(500).height(100);
+        table.add(mouseLeft).width(500).height(70);
         table.row().pad(10, 0, 10, 0);
-        table.add(mouseLeft).width(500).height(100);
-        table.row().pad(10, 0, 10, 0);
-        table.add(classic).width(500).height(100);
+        table.add(classic).width(500).height(70);
         table.row().pad(10, 0, 10, 0);
 
 
@@ -123,22 +126,29 @@ public class SettingView implements Screen {
 
         stage.addActor(table);
 
-        music1Button.addListener(event -> {
-            if (music != null) music.stop();
-            music = Gdx.audio.newMusic(Gdx.files.internal("music1.mp3"));
-            music.setLooping(true);
-            music.setVolume(volumeSlider.getValue());
-            music.play();
-            return false;
+        music1Button.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                if (music != null)
+                    music.stop();
+                music = Gdx.audio.newMusic(Gdx.files.internal("music1.mp3"));
+                music.setLooping(true);
+                music.setVolume(volumeSlider.getValue());
+                music.play();
+
+            }
         });
 
-        music2Button.addListener(event -> {
-            if (music != null) music.stop();
-            music = Gdx.audio.newMusic(Gdx.files.internal("music2.mp3"));
-            music.setLooping(true);
-            music.setVolume(volumeSlider.getValue());
-            music.play();
-            return false;
+        music2Button.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                if (music != null)
+                    music.stop();
+                music = Gdx.audio.newMusic(Gdx.files.internal("music2.mp3"));
+                music.setLooping(true);
+                music.setVolume(volumeSlider.getValue());
+                music.play();
+            }
         });
 
         backButton.addListener(new ClickListener() {
@@ -172,6 +182,7 @@ public class SettingView implements Screen {
                 App.loggedInUser.setPlaySFX(sfxCheckBox.isChecked());
             }
         });
+
         autoReloadCheckbox.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
@@ -183,10 +194,10 @@ public class SettingView implements Screen {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
                 String selected = keyboardBox.getSelected();
-                if (selected.equals("W,D,S,A")) {
+                if (selected.equals("W,D,S,A,  R")) {
                     App.loggedInUser.setKeyboard(true);
                     UserRepo.saveUser(UserRepo.findUserByUsername(App.loggedInUser.getUsername()));
-                } else if (selected.equals("I,L,K,J")) {
+                } else if (selected.equals("I,L,K,J,  T")) {
                     App.loggedInUser.setKeyboard(false);
                     UserRepo.saveUser(UserRepo.findUserByUsername(App.loggedInUser.getUsername()));
                 }

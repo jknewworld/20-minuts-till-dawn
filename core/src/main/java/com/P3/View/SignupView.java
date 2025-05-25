@@ -53,30 +53,43 @@ public class SignupView implements Screen {
         this.controller = controller;
         this.backgroundTexture = new Texture(Gdx.files.internal("signupbackground.png"));
         this.backgroundImage = new Image(backgroundTexture);
-        FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("Font/ChevyRay - Express.ttf"));
+//        FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("Font/ChevyRay - Express.ttf"));
+//        FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
+//        parameter.size = 32;
+//        BitmapFont bigFont = generator.generateFont(parameter);
+//        generator.dispose();
+//        Label.LabelStyle style = new Label.LabelStyle();
+//        style.font = bigFont;
+//        style.fontColor = Color.LIME;
+        FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("Font/IMFePIit28P.ttf"));
         FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
-        parameter.size = 32;
+        parameter.size = 70;
         BitmapFont bigFont = generator.generateFont(parameter);
         generator.dispose();
-        Label.LabelStyle style = new Label.LabelStyle();
+        TextButton.TextButtonStyle style = new TextButton.TextButtonStyle();
         style.font = bigFont;
-        style.fontColor = Color.LIME;
+        style.fontColor = Color.FOREST;
+        style.overFontColor = Color.GREEN;
+        style.downFontColor = Color.GREEN;
+        Label.LabelStyle styleLabel = new Label.LabelStyle();
+        styleLabel.font = bigFont;
+        styleLabel.fontColor = Color.LIME;
         if(StartView.getLanguge() == 1) {
             this.name = new TextField("What's your name?", skin);
             this.password = new TextField("Create your password!", skin);
-            this.sQustion = new Label("How old are you?", style);
+            this.sQustion = new Label("How old are you?", skin);
             sQustion.setColor(Color.LIME);
             this.answer = new TextField("Answer?", skin);
-            this.registerButton = new TextButton("Register", skin);
-            this.loginButton = new TextButton("Login", skin);
-            this.ghostButtom = new TextButton("Guest", skin);
+            this.registerButton = new TextButton("Register", style);
+            this.loginButton = new TextButton("Login", style);
+            this.ghostButtom = new TextButton("Guest", style);
             this.messageLabel = new Label("", skin);
             messageLabel.setColor(Color.GREEN);
-            this.backButton = new TextButton("Back", skin);
+            this.backButton = new TextButton("Back", style);
         } else if (StartView.getLanguge() == 2) {
             this.name = new TextField("Comment tu t'appelles ?", skin);
             this.password = new TextField("Crée ton mot de passe!", skin);
-            this.sQustion = new Label("Quel âge as-tu?", style);
+            this.sQustion = new Label("Quel âge as-tu?", styleLabel);
             sQustion.setColor(Color.LIME);
             this.answer = new TextField("Réponse?", skin);
             this.registerButton = new TextButton("S'inscrire", skin);
@@ -114,16 +127,16 @@ public class SignupView implements Screen {
         table.row().pad(10, 0, 10, 0);
         table.add(answer).width(500).height(80);
 
-        table.row().pad(10, 0, 10, 0);
+        table.row().pad(10, 0, 0, 0);
         table.add(messageLabel).width(500).height(50);
 
-        table.row().pad(20, 0, 10, 0);
-        table.add(registerButton).width(500).height(100);
+        table.row().pad(0, 0, 0, 0);
+        table.add(registerButton).width(500).height(70);
 
         table.row().pad(10, 0, 10, 0);
         Table buttonTable = new Table();
-        buttonTable.add(loginButton).width(250).height(100).padRight(5);
-        buttonTable.add(ghostButtom).width(250).height(100).padLeft(5);
+        buttonTable.add(loginButton).width(250).height(70).padRight(5);
+        buttonTable.add(ghostButtom).width(250).height(70).padLeft(5);
         table.add(buttonTable).width(500);
 
         table.row().pad(10, 0, 10, 0);
@@ -209,15 +222,26 @@ public class SignupView implements Screen {
     private void loadLoginForm() {
         table.clear();
 
+        FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("Font/IMFePIit28P.ttf"));
+        FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
+        parameter.size = 70;
+        BitmapFont bigFont = generator.generateFont(parameter);
+        generator.dispose();
+        TextButton.TextButtonStyle style = new TextButton.TextButtonStyle();
+        style.font = bigFont;
+        style.fontColor = Color.FOREST;
+        style.overFontColor = Color.GREEN;
+        style.downFontColor = Color.GREEN;
+
         loginUsername = new TextField("Username", GameAssetManager.getGameAssetManager().getSkin());
         loginPassword = new TextField("Password", GameAssetManager.getGameAssetManager().getSkin());
         forgetPasswordField = new TextField("How old are you?", GameAssetManager.getGameAssetManager().getSkin());
         newPass = new TextField("New PASS", GameAssetManager.getGameAssetManager().getSkin());
 
-        confirmLogin = new TextButton("Confirm Login", GameAssetManager.getGameAssetManager().getSkin());
-        backToSignup = new TextButton("Back", GameAssetManager.getGameAssetManager().getSkin());
-        forgetPasswordButton = new TextButton("Forget", GameAssetManager.getGameAssetManager().getSkin());
-        answerButton = new TextButton("My Password", GameAssetManager.getGameAssetManager().getSkin());
+        confirmLogin = new TextButton("Confirm Login", style);
+        backToSignup = new TextButton("Back", style);
+        forgetPasswordButton = new TextButton("Forget", style);
+        answerButton = new TextButton("My Password", style);
 
 
         loginUsername.setColor(Color.WHITE);

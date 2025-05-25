@@ -59,11 +59,11 @@ public class GameController {
 
     // Elder
     private Elder elder;
+    private boolean elderSpawned = false;
 
     public GameController() {
 
     }
-
 
     public void setView(GameView view) {
         // View
@@ -116,16 +116,6 @@ public class GameController {
 //        eyes = new Eye[0];
 //        eyeCount = 0;
 
-        // Elder
-        this.elder = new Elder();
-        float x = (float) (Math.random() * worldController.worldWidth);
-        float y = (float) (Math.random() * worldController.worldHeight);
-        elder.setX(x);
-        elder.setY(y);
-        Sprite s = new Sprite(GameAssetManager.getGameAssetManager().getElder_frames().getKeyFrame(0));
-        s.setPosition(x, y);
-        elder.setPlayerSprite(s);
-
         // Weapon
         weaponController = new WeaponController(weapon);
     }
@@ -146,6 +136,7 @@ public class GameController {
             float delta = Gdx.graphics.getDeltaTime();
             gameTime += delta;
             spawnTimer += delta;
+            int t = App.loggedInUser.getTime();
 
             if (gameTime >= MINIMUM_GAME_TIME && spawnTimer >= SPAWN_INTERVAL) {
                 spawnMonster();
@@ -153,14 +144,15 @@ public class GameController {
                 spawnMonster();
                 spawnTimer = 0f;
             }
-            float eyeSpawnInterval = getEyeSpawnInterval(gameTime, eyeSpawnCount);
-
-            if (spawnTimer >= eyeSpawnInterval) {
-                // for(int i = 0; i < (4f * i - t + 30f) / 30f;; i++) {}
-                spawnEyebat();
-                eyeSpawnCount++;
-                spawnTimer = 0f;
-            }
+//            float eyeSpawnInterval = getEyeSpawnInterval(gameTime, eyeSpawnCount);
+//
+//            if (gameTime >= (float) t / 4) {
+//                for (int i = 0; i < (4f * i - t + 30f) / 30f; i++) {
+//                    spawnEyebat();
+//                    eyeSpawnCount++;
+//                }
+//                spawnTimer = 0f;
+//            }
 
             eyeShootTimer += delta;
             if (eyeShootTimer >= EYE_SHOOT_INTERVAL) {
@@ -215,14 +207,39 @@ public class GameController {
                 Main.setCustomCursor("m.png");
             }
 
+            if ((gameTime > (float) App.loggedInUser.getMaxTime() / 2) && !elderSpawned) {
+                elder = new Elder();
+                elderSpawned = true;
+                elder.setDead(false);
+
+                float x = (float) (100);
+                float y = (float) (1000);
+
+                elder.setX(x);
+                elder.setY(y);
+                Sprite s = new Sprite(GameAssetManager.getGameAssetManager().getElder_frames().getKeyFrame(0));
+                s.setPosition(x, y);
+                elder.setDashing(false);
+                elder.setPlayerSprite(s);
+            }
+
+            if (elderSpawned && !elder.isDead()) {
+                elder.setDashTimer(elder.getDashTimer() + delta);
+
+                if (elder.getDashTimer() >= 5f) {
+                    elder.setDashing(true);
+                    elder.setDashTimer(0);
+                }
+            }
+
 
             // Player
             checkPlayerOverlap();
+            checkBulleEnemyCollision();
             // Tree
             treeAnimation();
             renderTrees();
             // Monster
-            checkBulletMonsterCollision();
             MonsterAnimation();
             renderMonsters();
             // Eye
@@ -232,7 +249,10 @@ public class GameController {
             renderBullets();
             DeathAnimation();
             // Elder
-            elderAnimation();
+            if (elder != null) {
+                elderAnimation();
+                renderElder();
+            }
             // Update
             updateDeadMonsters(delta);
             updateDeadEyes(delta);
@@ -296,11 +316,12 @@ public class GameController {
         for (EnemyBullet enemyBullet : enemyBullets) {
             if (enemyBullet != null) {
 
+
                 float drawX = enemyBullet.getX();
                 float drawY = enemyBullet.getY();
 
-                moveEnemyTowardsPlayer(enemyBullet);
 
+                moveEnemyTowardsPlayer(enemyBullet);
                 if (enemyBullet.isDead())
                     enemyBullet.getPlayerSprite().setScale(2f);
 
@@ -561,7 +582,6 @@ public class GameController {
                 monster.getPlayerSprite().setPosition(drawX, drawY);
                 monster.getPlayerSprite().draw(Main.getBatch());
             } else if (monster.isSeed()) {
-                //  moveMonstersTowardsPlayer(monster);
 
                 float drawX = monster.getX() + playerX;
                 float drawY = monster.getY() + playerY;
@@ -610,6 +630,58 @@ public class GameController {
 
         monster.setX(monsterX + dx * speed * delta);
         monster.setY(monsterY + dy * speed * delta);
+    }
+
+    public void renderElder() {
+        float playerX = playerController.getPlayer().getPosX();
+        float playerY = playerController.getPlayer().getPosY();
+
+        if (true) {
+            if (elder.isDashing()) {
+                moveElderTowardsPlayer(elder);
+                elder.setDashing(false);
+            }
+
+            float drawX = elder.getX();
+            float drawY = elder.getY();
+
+            elder.getPlayerSprite().setScale(3f);
+            elder.getPlayerSprite().setPosition(drawX, drawY);
+            elder.getPlayerSprite().draw(Main.getBatch());
+        }
+    }
+
+    public void moveElderTowardsPlayer(Elder elder) {
+        float playerX = (float) Gdx.graphics.getWidth() / 2;
+        float playerY = (float) Gdx.graphics.getHeight() / 2;
+
+        float monsterX = elder.getX();
+        float monsterY = elder.getY();
+
+        float dx = playerX - monsterX;
+        float dy = playerY - monsterY;
+
+        float length = (float) Math.sqrt(dx * dx + dy * dy);
+        if (length != 0) {
+            dx /= length;
+            dy /= length;
+        } else {
+            elder.setDead(true);
+            elder.setShouldBeRemoved(true);
+        }
+
+        float delta = Gdx.graphics.getDeltaTime();
+        float speed = elder.isDashing() ? 500f : 0f;
+
+        float pX = playerController.getPlayer().getPosX();
+        float pY = playerController.getPlayer().getPosY();
+
+        elder.setX(monsterX + dx * speed * delta);
+        elder.setY(monsterY + dy * speed * delta);
+
+        if (elder.isDashing()) {
+            elder.setDashing(false);
+        }
     }
 
     private long lastCollisionTime = -1;
@@ -717,7 +789,7 @@ public class GameController {
         return false;
     }
 
-    private void checkBulletMonsterCollision() {
+    private void checkBulleEnemyCollision() {
         List<Bullet> bullets = new ArrayList<>(weaponController.getBullets());
         List<Bullet> bulletsToRemove = new ArrayList<>();
         List<Monster> monstersToRemove = new ArrayList<>();
@@ -910,17 +982,12 @@ public class GameController {
         }
 
         List<EnemyBullet> remainingMonsters = new ArrayList<>();
-        // List<Monster> speedMonster = new ArrayList<>();
         for (EnemyBullet monster : enemyBullets) {
             if (!monster.shouldBeRemoved()) {
                 remainingMonsters.add(monster);
-            } else {
-                //speedMonster.add(monster);
             }
         }
         enemyBullets = remainingMonsters;
-        // speed = speedMonster.toArray(new Monster[0]);
-        // monsterCount = monsters.length;
     }
 
     private void updateDeadEyes(float delta) {
@@ -965,6 +1032,14 @@ public class GameController {
         save.weapon = App.loggedInUser.getWeapon();
         save.heavy = App.loggedInUser.isHeavy();
 
+        saveMoster(save);
+        saveEyeBat(save);
+        saveTree(save);
+
+        GameSaveManager.saveGame(save);
+    }
+
+    public static void saveMoster(GameState save) {
         save.monster = new ArrayList<>();
         for (Monster monster : monsters) {
             MonsterData m = new MonsterData();
@@ -978,7 +1053,9 @@ public class GameController {
             m.shouldBeRemoved = monster.shouldBeRemoved();
             save.monster.add(m);
         }
+    }
 
+    public static void saveEyeBat(GameState save) {
         save.eye = new ArrayList<>();
         for (Eye eye : eyes) {
             EyeDate e = new EyeDate();
@@ -994,7 +1071,9 @@ public class GameController {
             e.dy = eye.getDy();
             save.eye.add(e);
         }
+    }
 
+    public static void saveTree(GameState save) {
         save.tree = new ArrayList<>();
         for (Tree tree : trees) {
             TreeData t = new TreeData();
@@ -1002,10 +1081,7 @@ public class GameController {
             t.y = tree.getY();
             save.tree.add(t);
         }
-
-        GameSaveManager.saveGame(save);
     }
-
 
     public static void loadGame() {
         FileHandle file = Gdx.files.local("savegame.json");
@@ -1013,56 +1089,9 @@ public class GameController {
             Json json = new Json();
             GameState save = json.fromJson(GameState.class, file.readString());
 
-            for (int i = 0; i < monsters.length; i++) {
-                monsters[i] = null;
-            }
-            monsterCount = 0;
-
-            for (MonsterData ed : save.monster) {
-                Monster e = new Monster();
-                e.setSeed(ed.isSeed);
-                e.setX(ed.x);
-                e.setY(ed.y);
-                e.setShouldBeRemoved(ed.shouldBeRemoved);
-                e.setDeathTime(ed.deathTime);
-                e.setType(ed.type);
-                e.setHP(ed.HP);
-                e.setDead(ed.isDead);
-
-                monsters[monsterCount++] = e;
-            }
-
-            for (int i = 0; i < eyes.length; i++) {
-                eyes[i] = null;
-            }
-            eyeCount = 0;
-
-            for (EyeDate ed : save.eye) {
-                Eye e = new Eye();
-                e.setSeed(ed.isSeed);
-                e.setX(ed.x);
-                e.setY(ed.y);
-                e.setShouldBeRemoved(ed.shouldBeRemoved);
-                e.setDeathTime(ed.deathTime);
-                e.setHP(ed.HP);
-                e.setDead(ed.isDead);
-
-                eyes[eyeCount++] = e;
-            }
-
-            for (int i = 0; i < trees.length; i++) {
-                trees[i] = null;
-            }
-
-            treeCount = 0;
-
-            for (TreeData ed : save.tree) {
-                Tree e = new Tree();
-                e.setX(ed.x);
-                e.setY(ed.y);
-
-                trees[treeCount++] = e;
-            }
+            loadMonster(save);
+            loadEyeBat(save);
+            loadTree(save);
 
             App.loggedInUser.setTime(save.time);
             App.loggedInUser.setKill(save.kill);
@@ -1075,6 +1104,63 @@ public class GameController {
             App.loggedInUser.setAmmo(save.ammo);
         }
 
+    }
+
+    public static void loadMonster(GameState save) {
+        for (int i = 0; i < monsters.length; i++) {
+            monsters[i] = null;
+        }
+        monsterCount = 0;
+
+        for (MonsterData ed : save.monster) {
+            Monster e = new Monster();
+            e.setSeed(ed.isSeed);
+            e.setX(ed.x);
+            e.setY(ed.y);
+            e.setShouldBeRemoved(ed.shouldBeRemoved);
+            e.setDeathTime(ed.deathTime);
+            e.setType(ed.type);
+            e.setHP(ed.HP);
+            e.setDead(ed.isDead);
+
+            monsters[monsterCount++] = e;
+        }
+    }
+
+    public static void loadEyeBat(GameState save) {
+        for (int i = 0; i < eyes.length; i++) {
+            eyes[i] = null;
+        }
+        eyeCount = 0;
+
+        for (EyeDate ed : save.eye) {
+            Eye e = new Eye();
+            e.setSeed(ed.isSeed);
+            e.setX(ed.x);
+            e.setY(ed.y);
+            e.setShouldBeRemoved(ed.shouldBeRemoved);
+            e.setDeathTime(ed.deathTime);
+            e.setHP(ed.HP);
+            e.setDead(ed.isDead);
+
+            eyes[eyeCount++] = e;
+        }
+    }
+
+    public static void loadTree(GameState save) {
+        for (int i = 0; i < trees.length; i++) {
+            trees[i] = null;
+        }
+
+        treeCount = 0;
+
+        for (TreeData ed : save.tree) {
+            Tree e = new Tree();
+            e.setX(ed.x);
+            e.setY(ed.y);
+
+            trees[treeCount++] = e;
+        }
     }
 
     public boolean isAutoAimEnabled() {

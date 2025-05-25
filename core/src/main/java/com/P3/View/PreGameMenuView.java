@@ -34,10 +34,10 @@ public class PreGameMenuView implements Screen {
         ProgressBar.ProgressBarStyle progressBarStyle = new ProgressBar.ProgressBarStyle();
         progressBarStyle.background = skin.newDrawable("white", Color.DARK_GRAY);
         progressBarStyle.knobBefore = skin.newDrawable("white", Color.GREEN);
-        progressBarStyle.knob = skin.newDrawable("white", Color.GREEN); // اگر بخوای کل نوار پر باشه
+        progressBarStyle.knob = skin.newDrawable("white", Color.GREEN);
         timeBar = new ProgressBar(0f, duration, 1f, false, progressBarStyle);
         timeBar.setValue(duration);
-        timeBar.setAnimateDuration(0.1f); // برای smooth شدن
+        timeBar.setAnimateDuration(0.1f);
         timeBar.setWidth(500);
         timeBar.setHeight(30);
         this.table = new Table();

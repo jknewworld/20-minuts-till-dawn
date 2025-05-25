@@ -13,6 +13,8 @@ import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
@@ -59,34 +61,44 @@ public class ProfileView implements Screen {
         this.avatarImage1 = new Image(avtarPic1);
         this.avtarPic2 = new Texture(Gdx.files.internal("Avatars/8.png"));
         this.avatarImage2 = new Image(avtarPic2);
+        FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("Font/IMFePIit28P.ttf"));
+        FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
+        parameter.size = 60;
+        BitmapFont bigFont = generator.generateFont(parameter);
+        generator.dispose();
+        TextButton.TextButtonStyle style = new TextButton.TextButtonStyle();
+        style.font = bigFont;
+        style.fontColor = Color.FOREST;
+        style.overFontColor = Color.GREEN;
+        style.downFontColor = Color.GREEN;
         if(StartView.getLanguge() == 1) {
-            this.changUsername = new TextButton("Change Username", skin);
-            this.changePassword = new TextButton("Change Password", skin);
-            this.remove = new TextButton("Remove UR Account", skin);
+            this.changUsername = new TextButton("Change Username", style);
+            this.changePassword = new TextButton("Change Password", style);
+            this.remove = new TextButton("Remove UR Account", style);
             this.newName = new TextField("Take Me UR NEW NAME", skin);
             this.newPassword = new TextField("Take Me UR NEW PASS", skin);
-            this.change1 = new TextButton("Change", skin);
+            this.change1 = new TextButton("Change", style);
             this.message = new Label("", skin);
             message.setColor(Color.GREEN);
-            this.changeAvatar = new TextButton("Change Avatar", skin);
+            this.changeAvatar = new TextButton("Change Avatar", style);
             this.selectBox = new SelectBox<>(skin);
             selectBox.setItems("None", "Left", "Right");
-            this.backButton = new TextButton("Back", skin);
-            this.chooseFileButton = new TextButton("Choose File", skin);
+            this.backButton = new TextButton("Back", style);
+            this.chooseFileButton = new TextButton("Choose File", style);
         } else if(StartView.getLanguge() == 2) {
-            this.changUsername = new TextButton("Changer le nom d'utilisateur", skin);
-            this.changePassword = new TextButton("Changer le mot de passe", skin);
-            this.remove = new TextButton("Supprimer ton compte", skin);
+            this.changUsername = new TextButton("Changer le nom d'utilisateur", style);
+            this.changePassword = new TextButton("Changer le mot de passe", style);
+            this.remove = new TextButton("Supprimer ton compte", style);
             this.newName = new TextField("Donne-moi ton NOUVEAU NOM", skin);
             this.newPassword = new TextField("Donne-moi ton NOUVEAU MOT DE PASSE", skin);
-            this.change1 = new TextButton("Changer", skin);
+            this.change1 = new TextButton("Changer", style);
             this.message = new Label("", skin);
             message.setColor(Color.GREEN);
-            this.changeAvatar = new TextButton("Changer l’avatar", skin);
+            this.changeAvatar = new TextButton("Changer l’avatar", style);
             this.selectBox = new SelectBox<>(skin);
             selectBox.setItems("Aucun", "Left", "Right");
-            this.backButton = new TextButton("Retour", skin);
-            this.chooseFileButton = new TextButton("Choisir un fichier", skin);
+            this.backButton = new TextButton("Retour", style);
+            this.chooseFileButton = new TextButton("Choisir un fichier", style);
         }
 
         this.table = new Table();
@@ -262,9 +274,10 @@ public class ProfileView implements Screen {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 table.clear();
-                Main.getMain().setScreen(new StartView(new StartController(), GameAssetManager.getGameAssetManager().getSkin()));
+                Main.getMain().setScreen(new MainMenuView(new MainMenuController(), GameAssetManager.getGameAssetManager().getSkin()));
             }
         });
+
 
 
         remove.addListener(new ClickListener() {

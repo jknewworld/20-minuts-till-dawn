@@ -23,6 +23,9 @@ public class User {
     private boolean heavy;
     private boolean playSFX;
     private int ammo;
+    private int maxTime;
+    private boolean reloadR;
+
 
     public User(String username, String password, String answer, int avatar) {
         this.username = username;
@@ -41,6 +44,7 @@ public class User {
         this.heavy = false;
         this.playSFX = false;
         this.ammo = 0;
+        this.reloadR = false;
     }
 
     public User() {
@@ -185,4 +189,22 @@ public class User {
     public void setAmmo(int ammo) {
         this.ammo = ammo;
     }
+
+    public int getMaxTime() {
+        return maxTime;
+    }
+
+    public void setMaxTime(int maxTime) {
+        this.maxTime = maxTime;
+    }
+
+    public boolean isReloadR() {
+        return reloadR;
+    }
+
+    public void setReloadR(boolean reloadR) {
+        this.reloadR = reloadR;
+    }
 }
+
+

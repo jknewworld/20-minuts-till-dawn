@@ -117,18 +117,22 @@ public class PreGameView implements Screen {
                 switch (selected) {
                     case "2 Min":
                         App.loggedInUser.setTime(60);
+                        App.loggedInUser.setMaxTime(60);
                         UserRepo.saveUser(UserRepo.findUserByUsername(App.loggedInUser.getUsername()));
                         break;
                     case "5 Min":
                         App.loggedInUser.setTime(300);
+                        App.loggedInUser.setMaxTime(300);
                         UserRepo.saveUser(UserRepo.findUserByUsername(App.loggedInUser.getUsername()));
                         break;
                     case "10 Min":
                         App.loggedInUser.setTime(600);
+                        App.loggedInUser.setMaxTime(600);
                         UserRepo.saveUser(UserRepo.findUserByUsername(App.loggedInUser.getUsername()));
                         break;
                     default:
                         App.loggedInUser.setTime(1200);
+                        App.loggedInUser.setMaxTime(1200);
                         UserRepo.saveUser(UserRepo.findUserByUsername(App.loggedInUser.getUsername()));
                         break;
 

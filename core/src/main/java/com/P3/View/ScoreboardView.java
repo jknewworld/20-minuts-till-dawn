@@ -20,8 +20,7 @@ import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 
 public class ScoreboardView implements Screen {
-    private Texture backgroundTexture;
-    private Image backgroundImage;
+    private final Image backgroundImage;
     private TextButton backButton;
     private Stage stage;
     public Table table;
@@ -39,7 +38,7 @@ public class ScoreboardView implements Screen {
 
     public ScoreboardView(MainMenuController controller, Skin skin) {
         this.controller = controller;
-        this.backgroundTexture = new Texture(Gdx.files.internal("scoreboard.png"));
+        Texture backgroundTexture = new Texture(Gdx.files.internal("scoreboard.png"));
         if (StartView.getLanguge() == 1) {
             this.backButton = new TextButton("Back", skin);
         } else if (StartView.getLanguge() == 2) {
@@ -74,6 +73,17 @@ public class ScoreboardView implements Screen {
 
     @Override
     public void show() {
+        FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("Font/IMFePIit28P.ttf"));
+        FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
+        parameter.size = 65;
+        BitmapFont bigFont = generator.generateFont(parameter);
+        generator.dispose();
+        TextButton.TextButtonStyle style = new TextButton.TextButtonStyle();
+        style.font = bigFont;
+        style.fontColor = Color.FOREST;
+        style.overFontColor = Color.GREEN;
+        style.downFontColor = Color.GREEN;
+
         stage = new Stage(new ScreenViewport());
         Gdx.input.setInputProcessor(stage);
 
@@ -86,10 +96,10 @@ public class ScoreboardView implements Screen {
         table.setFillParent(true);
         table.top().center();
 
-        TextButton sortByScore = new TextButton("Sort by Score", GameAssetManager.getGameAssetManager().getSkin());
-        TextButton sortByUsername = new TextButton("Sort by Username", GameAssetManager.getGameAssetManager().getSkin());
-        TextButton sortByKills = new TextButton("Sort by Kills", GameAssetManager.getGameAssetManager().getSkin());
-        TextButton sortBySurvive = new TextButton("Sort by Survive", GameAssetManager.getGameAssetManager().getSkin());
+        TextButton sortByScore = new TextButton("Sort by Score", style);
+        TextButton sortByUsername = new TextButton("Sort by Username", style);
+        TextButton sortByKills = new TextButton("Sort by Kills", style);
+        TextButton sortBySurvive = new TextButton("Sort by Survive", style);
 
 
         backButton.addListener(new ClickListener() {
@@ -212,9 +222,7 @@ public class ScoreboardView implements Screen {
             table.row();
         }
 
-        // اگر کاربر فعلی در بین 10 نفر اول نبود، اطلاعاتش را جدا نمایش بده
         if (!currentUserInTop) {
-            // پیدا کردن رتبه کاربر فعلی
             int currentUserRank = -1;
             for (int i = 0; i < scoreboard.getUsers().size(); i++) {
                 if (scoreboard.getUsers().get(i).getUsername().equals(currentUsername)) {
@@ -223,12 +231,10 @@ public class ScoreboardView implements Screen {
                 }
             }
             if (currentUserRank != -1) {
-                // فاصله بگذار برای جدا کردن ردیف‌ها
                 Label separator = new Label("...", GameAssetManager.getGameAssetManager().getSkin());
                 table.add(separator).colspan(5).center().pad(10);
                 table.row();
 
-                // نمایش ردیف کاربر فعلی با رنگ متمایز
                 int i = currentUserRank - 1;
                 Label rankLabel = new Label(String.valueOf(currentUserRank), GameAssetManager.getGameAssetManager().getSkin());
                 Label usernameLabel = new Label(currentUsername, GameAssetManager.getGameAssetManager().getSkin());
@@ -236,7 +242,6 @@ public class ScoreboardView implements Screen {
                 Label killsLabel = new Label(String.valueOf(scoreboard.getUsers().get(i).getKill()), GameAssetManager.getGameAssetManager().getSkin());
                 Label surviveLabel = new Label(String.valueOf(scoreboard.getUsers().get(i).getTime()), GameAssetManager.getGameAssetManager().getSkin());
 
-                // جلوه بصری متمایز
                 rankLabel.setColor(Color.CYAN);
                 usernameLabel.setColor(Color.CYAN);
                 scoreLabel.setColor(Color.CYAN);

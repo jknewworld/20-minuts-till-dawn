@@ -41,10 +41,8 @@ public class WeaponController {
         updateBullets();
         weapon.updateReload();
 
-        if (App.autoReloadEnabled && weapon.getAmmo() == 0) {
+        if ((App.autoReloadEnabled && weapon.getAmmo() == 0 )|| App.loggedInUser.isReloadR())
             weapon.startReload();
-
-        }
     }
 
 

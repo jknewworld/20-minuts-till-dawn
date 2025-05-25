@@ -44,26 +44,26 @@ public class StartView implements Screen {
         this.backgroundTexture = new Texture(Gdx.files.internal("start1.png"));
         this.backgroundTexture2 = new Texture(Gdx.files.internal("start2.png"));
         this.backgroundImage = new Image(backgroundTexture);
-        FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("Font/ChevyRay - Express.ttf"));
+        FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("Font/IMFePIit28P.ttf"));
         FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
-        parameter.size = 32;
+        parameter.size = 65;
         BitmapFont bigFont = generator.generateFont(parameter);
         generator.dispose();
         TextButton.TextButtonStyle style = new TextButton.TextButtonStyle();
         style.font = bigFont;
-        style.fontColor = Color.BLACK;
-        style.overFontColor = Color.BLACK;
-        style.downFontColor = Color.BLACK;
+        style.fontColor = Color.FOREST;
+        style.overFontColor = Color.GREEN;
+        style.downFontColor = Color.GREEN;
         if (languge == 1) {
-            this.signupButton = new TextButton("SignUp", skin);
-            this.mainMenuButton = new TextButton("MainMenu", skin);
-            this.exitButton = new TextButton("Exit", skin);
+            this.signupButton = new TextButton("SignUp", style);
+            this.mainMenuButton = new TextButton("MainMenu", style);
+            this.exitButton = new TextButton("Exit", style);
             this.languageBox = new SelectBox<>(skin);
             languageBox.setItems("English", "Franch");
         } else if (languge == 2) {
-            this.signupButton = new TextButton("Inscription", skin);
-            this.mainMenuButton = new TextButton("MenuPrincipal", skin);
-            this.exitButton = new TextButton("Quitter", skin);
+            this.signupButton = new TextButton("Inscription", style);
+            this.mainMenuButton = new TextButton("MenuPrincipal", style);
+            this.exitButton = new TextButton("Quitter", style);
             this.languageBox = new SelectBox<>(skin);
             languageBox.setItems("Franch", "English");
         }
@@ -83,18 +83,18 @@ public class StartView implements Screen {
 
         table.setFillParent(true);
         table.center().padTop(100);
-        table.row().pad(10, 0, 10, 0);
+        table.row().pad(10, 0, 20, 0);
         table.setPosition(0, -100);
-        table.add(signupButton).width(500).height(100);
+        table.add(signupButton).width(500).height(60);
 
-        table.row().pad(10, 0, 10, 0);
-        table.add(mainMenuButton).width(500).height(100);
+        table.row().pad(10, 0, 20, 0);
+        table.add(mainMenuButton).width(500).height(60);
 
-        table.row().pad(10, 0, 10, 0);
+        table.row().pad(10, 0, 20, 0);
         table.add(languageBox).width(500).height(85);
 
-        table.row().pad(10, 0, 10, 0);
-        table.add(exitButton).width(500).height(100);
+        table.row().pad(10, 0, 20, 0);
+        table.add(exitButton).width(500).height(60);
 
         stage.addActor(table);
 

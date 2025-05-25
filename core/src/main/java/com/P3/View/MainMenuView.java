@@ -46,9 +46,9 @@ public class MainMenuView implements Screen {
         this.controller = controller;
         this.backgroundTexture = new Texture(Gdx.files.internal("mainmenubackground.png"));
         this.backgroundImage = new Image(backgroundTexture);
-        FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("Font/ChevyRay - Express.ttf"));
+        FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("Font/IMFePIit28P.ttf"));
         FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
-        parameter.size = 32;
+        parameter.size = 23;
         BitmapFont bigFont = generator.generateFont(parameter);
         generator.dispose();
         Label.LabelStyle style = new Label.LabelStyle();
@@ -61,11 +61,8 @@ public class MainMenuView implements Screen {
             this.scoreboardButton = new TextButton("Scoreboard", skin);
             this.talentButton = new TextButton("Talent", skin);
             this.saveButton = new TextButton("Save Game", skin);
-            style.fontColor = Color.PINK;
             this.name = new Label("NAME : " + App.loggedInUser.getUsername(), style);
-            style.fontColor = Color.BLUE;
             this.score = new Label("SCORE : " + App.loggedInUser.getScore(), style);
-            style.fontColor = Color.PINK;
             this.backButton = new TextButton("Back", skin);
             this.logooutButton = new TextButton("Logout", skin);
         } else if (StartView.getLanguge() == 2) {
@@ -110,9 +107,11 @@ public class MainMenuView implements Screen {
         stage.addActor(avatarImage);
 
         name.setFontScale(2.0f);
+        name.setColor(Color.PINK);
         name.setPosition(570, 750);
         stage.addActor(name);
 
+        score.setColor(Color.PURPLE);
         score.setFontScale(2.0f);
         score.setColor(0.5f, 1f, 0.5f, 1f);
         score.setPosition(570, 650);
