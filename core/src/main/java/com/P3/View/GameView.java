@@ -12,8 +12,10 @@ import com.badlogic.gdx.*;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.*;
+import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
@@ -65,6 +67,7 @@ public class GameView implements Screen, InputProcessor {
     private Sound winSound;
     private Sound levelupSound;
     private Label ammoLabel;
+    private OrthographicCamera camera;
 
     private Viewport viewport;
 
@@ -108,7 +111,23 @@ public class GameView implements Screen, InputProcessor {
 
 
         this.table = new Table();
+        camera = new OrthographicCamera();
+        camera.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+        camera.update();
         controller.setView(this);
+
+    }
+
+    public void moveCursorTo(Vector2 worldPosition) {
+        Vector3 screenPos = new Vector3(worldPosition.x, worldPosition.y, 0);
+        camera.project(screenPos);
+        Gdx.input.setCursorPosition((int) screenPos.x, Gdx.graphics.getHeight() - (int) screenPos.y);
+    }
+
+    public Vector2 worldToScreen(Vector2 worldPos) {
+        Vector3 projected = new Vector3(worldPos.x, worldPos.y, 0);
+        camera.project(projected);
+        return new Vector2(projected.x, Gdx.graphics.getHeight() - projected.y);
     }
 
     @Override
@@ -204,6 +223,7 @@ public class GameView implements Screen, InputProcessor {
                 winStage.act(Math.min(Gdx.graphics.getDeltaTime(), 1 / 30f));
                 winStage.draw();
             }
+
         }
 
         if (StartView.getLanguge() == 1)
@@ -763,10 +783,16 @@ public class GameView implements Screen, InputProcessor {
             reduceTime(60);
             return true;
         }
-        if (keycode == Input.Keys.SPACE) {
+        if (keycode == Input.Keys.F2) {
             App.loggedInUser.setKill(App.loggedInUser.getKill() + 5);
             return true;
         }
+
+        if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) {
+            controller.setAutoAimEnabled(!controller.isAutoAimEnabled());
+        }
+
+
         if (keycode == Input.Keys.F1) {
             if (!isRealPause) {
                 isRealPause = true;

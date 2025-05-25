@@ -16,6 +16,7 @@ import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Json;
 import com.badlogic.gdx.utils.TimeUtils;
 
@@ -34,6 +35,7 @@ public class GameController {
     private long ability3StartTime = 0;
     private Sound damageSound = Gdx.audio.newSound(Gdx.files.internal("sfx/damage.wav"));
     private static GameController instance;
+    private boolean isAutoAimEnabled = true;
 
     // Tree
     public static Tree[] trees;
@@ -165,6 +167,28 @@ public class GameController {
                 shootEyesAtPlayer();
                 eyeShootTimer = 0f;
             }
+
+            Monster nearest = null;
+            float minDistance = Float.MAX_VALUE;
+
+            for (Monster e : monsters) {
+                float dx = Gdx.graphics.getWidth() / 2f - e.getX();
+                float dy = Gdx.graphics.getHeight() / 2f - e.getY();
+                float dist = (float) Math.sqrt(dx * dx + dy * dy);
+
+                if (dist < minDistance) {
+                    minDistance = dist;
+                    nearest = e;
+                }
+            }
+
+            if (isAutoAimEnabled && nearest != null) {
+                Vector2 enemyPos = new Vector2(-nearest.getX() + playerController.getPlayer().getPosX(), nearest.getY()-playerController.getPlayer().getPosY());
+                Vector2 enemyScreenPos = view.worldToScreen(enemyPos);
+                Gdx.input.setCursorPosition((int) enemyScreenPos.x, Gdx.graphics.getHeight() - (int) enemyScreenPos.y);
+            }
+
+
 
             // Player
             checkPlayerOverlap();
@@ -309,10 +333,10 @@ public class GameController {
         float playerY = playerController.getPlayer().getPosY();
 
         for (Tree tree : trees) {
-            moveTreesTowardsPlayer(tree);
+            float drawX = tree.getX() + playerX;
+            float drawY = tree.getY() + playerY;
 
-            float drawX = tree.getX();
-            float drawY = tree.getY();
+            moveTreesTowardsPlayer(tree);
 
             tree.getPlayerSprite().setScale(1.5f);
             tree.getPlayerSprite().setPosition(drawX, drawY);
@@ -336,7 +360,7 @@ public class GameController {
             dy /= length;
         }
 
-        float speed = 2f;
+        float speed = 0.5f;
         float delta = Gdx.graphics.getDeltaTime();
         float pX = playerController.getPlayer().getPosX();
         float pY = playerController.getPlayer().getPosY();
@@ -1026,4 +1050,11 @@ public class GameController {
 
     }
 
+    public boolean isAutoAimEnabled() {
+        return isAutoAimEnabled;
+    }
+
+    public void setAutoAimEnabled(boolean autoAimEnabled) {
+        isAutoAimEnabled = autoAimEnabled;
+    }
 }
