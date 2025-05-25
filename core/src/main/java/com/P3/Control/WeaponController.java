@@ -100,8 +100,10 @@ public class WeaponController {
         return bullets;
     }
 
-    public void setBullets(ArrayList<Bullet> bullets) {
-        this.bullets = bullets;
+    public Weapon getWeapon() {
+        return weapon;
     }
+
+
 }
 

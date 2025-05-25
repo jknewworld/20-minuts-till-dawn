@@ -537,6 +537,7 @@ public class GameView implements Screen, InputProcessor {
                 Gdx.input.setInputProcessor(multiplexer);
 
                 App.loggedInUser.setTime((int) timeBar.getValue());
+                controller.saveGame();
 
             }
         });

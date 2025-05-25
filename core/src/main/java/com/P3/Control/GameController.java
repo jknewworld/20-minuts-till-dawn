@@ -29,13 +29,13 @@ public class GameController {
     private GameView view;
     private PlayerController playerController;
     private WorldController worldController;
-    private WeaponController weaponController;
-    private Tree[] trees;
-    private int treeCount = 20;
+    private static WeaponController weaponController;
+    public static Tree[] trees;
+    public static int treeCount = 20;
     public static Monster[] monsters;
     public static int monsterCount = 10;
-    private Eye[] eyes;
-    private int eyeCount = 10;
+    public static Eye[] eyes;
+    public static int eyeCount = 10;
     private float spawnTimer = 0f;
     private float gameTime = 0f;
     private final float SPAWN_INTERVAL = 3f;
@@ -976,32 +976,74 @@ public class GameController {
     }
 
 
-//    public static GameState loadGame(){
-//        FileHandle file = Gdx.files.local("savegame.json");
-//        if (file.exists()) {
-//            Json json = new Json();
-//            GameState save = json.fromJson(GameState.class, file.readString());
-//
-//            // اعمال اطلاعات لود‌شده به بازی
-//            App.loggedInUser.setPosition(new Vector2(save.player.x, save.player.y));
-//            for (int i = 0; i < monsters.length; i++) {
-//                monsters[i] = null;
-//            }
-//
-//
-//            for (MonsterData ed : save.monster) {
-//                Monster e = new Monster();
-//                e.setPosition(new Vector2(ed.x, ed.y));
-//                e.setHealth(ed.health);
-//                monsters.add(e);
-//            }
-//            score = save.score;
-//            coins = save.coins;
-//            player.setHealth(save.health);
-//            isAutoAimEnabled = save.isAutoAimEnabled;
-//            currentLevel = save.level;
-//        }
+    public static void loadGame() {
+        FileHandle file = Gdx.files.local("savegame.json");
+        if (file.exists()) {
+            Json json = new Json();
+            GameState save = json.fromJson(GameState.class, file.readString());
 
-//    }
+            for (int i = 0; i < monsters.length; i++) {
+                monsters[i] = null;
+            }
+            monsterCount = 0;
+
+            for (MonsterData ed : save.monster) {
+                Monster e = new Monster();
+                e.setSeed(ed.isSeed);
+                e.setX(ed.x);
+                e.setY(ed.y);
+                e.setShouldBeRemoved(ed.shouldBeRemoved);
+                e.setDeathTime(ed.deathTime);
+                e.setType(ed.type);
+                e.setHP(ed.HP);
+                e.setDead(ed.isDead);
+
+                monsters[monsterCount++] = e;
+            }
+
+            for (int i = 0; i < eyes.length; i++) {
+                eyes[i] = null;
+            }
+            eyeCount = 0;
+
+            for (EyeDate ed : save.eye) {
+                Eye e = new Eye();
+                e.setSeed(ed.isSeed);
+                e.setX(ed.x);
+                e.setY(ed.y);
+                e.setShouldBeRemoved(ed.shouldBeRemoved);
+                e.setDeathTime(ed.deathTime);
+                e.setHP(ed.HP);
+                e.setDead(ed.isDead);
+
+                eyes[eyeCount++] = e;
+            }
+
+            for (int i = 0; i < trees.length; i++) {
+                trees[i] = null;
+            }
+
+            treeCount = 0;
+
+            for (TreeData ed : save.tree) {
+                Tree e = new Tree();
+                e.setX(ed.x);
+                e.setY(ed.y);
+
+                trees[treeCount++] = e;
+            }
+
+            App.loggedInUser.setTime(save.time);
+            App.loggedInUser.setKill(save.kill);
+            App.loggedInUser.setScore(save.score);
+            App.loggedInUser.setHero(save.hero);
+            App.loggedInUser.setLevel(save.level);
+            App.loggedInUser.setWeapon(save.weapon);
+            App.loggedInUser.setHeavy(save.heavy);
+            App.loggedInUser.setHealth(save.health);
+            App.loggedInUser.setAmmo(save.ammo);
+        }
+
+    }
 
 }
