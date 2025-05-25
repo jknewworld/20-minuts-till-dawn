@@ -12,9 +12,9 @@ public class GameSaveManager {
 
     public static void saveGame(GameState state) {
         Json json = new Json();
-        String saveData = json.prettyPrint(state); // می‌تونی از json.toJson(save) هم استفاده کنی
+        String saveData = json.prettyPrint(state);
         FileHandle file = Gdx.files.local("savegame.json");
-        file.writeString(saveData, false); // false = overwrite
+        file.writeString(saveData, false);
     }
 
 

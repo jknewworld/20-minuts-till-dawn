@@ -186,78 +186,116 @@ public class GameView implements Screen, InputProcessor {
 
     @Override
     public void render(float delta) {
+        clearScreen();
+        beginDrawing();
+
+        if (shouldRenderNormalGame()) {
+            renderNormalGame(delta);
+        }
+
+        updateStatusLabels();
+        endDrawing();
+
+        float frameTime = Math.min(Gdx.graphics.getDeltaTime(), 1 / 30f);
+
+        if (shouldRenderStage(stage)) {
+            renderStage(stage, frameTime);
+            return;
+        }
+
+        if (shouldRevivePlayer()) {
+            revivePlayer();
+            return;
+        }
+
+        if (isLose) {
+            renderStage(loseStage, frameTime);
+            return;
+        }
+
+        if (isWin) {
+            renderStage(winStage, frameTime);
+            return;
+        }
+
+        if (isRealPause) {
+            renderStage(realPauseMenuStage, frameTime);
+            return;
+        }
+
+        renderStage(pauseStage, frameTime);
+    }
+
+    private void clearScreen() {
         ScreenUtils.clear(0, 0, 0, 1);
+    }
+
+    private void beginDrawing() {
         Main.getBatch().begin();
+    }
 
-        if (!isPaused && !isLose && !isWin && !isRealPause)
-            normalMode(delta);
+    private void endDrawing() {
+        Main.getBatch().end();
+    }
 
-        if (StartView.getLanguge() == 1)
-            killLabel.setText("Killed " + App.loggedInUser.getKill() + " beasts — even Orcs would be jealous!");
-        else if (StartView.getLanguge() == 2)
-            killLabel.setText("Monstres vaincus " + App.loggedInUser.getKill() + " — Pas mal pour un hobbit !");
+    private boolean shouldRenderNormalGame() {
+        return !isPaused && !isLose && !isWin && !isRealPause;
+    }
+
+    private void renderNormalGame(float delta) {
+        normalMode(delta);
+    }
+
+    private void updateStatusLabels() {
+        int language = StartView.getLanguge();
+        int killCount = App.loggedInUser.getKill();
+
+        if (language == 1) {
+            killLabel.setText("Killed " + killCount + " beasts — even Orcs would be jealous!");
+        } else if (language == 2) {
+            killLabel.setText("Monstres vaincus " + killCount + " — Pas mal pour un hobbit !");
+        }
 
         level.setText("Level " + App.loggedInUser.getLevel());
         ammoLabel.setText("Ammo " + App.loggedInUser.getAmmo());
+    }
 
-        Main.getBatch().end();
+    private boolean shouldRenderStage(Stage stage) {
+        return !isPaused && !isLose && !isWin && isLevelUp == 0 && !isRealPause;
+    }
 
-        if (!isPaused && !isLose && !isWin && isLevelUp == 0 && !isRealPause) {
-            stage.act(Math.min(Gdx.graphics.getDeltaTime(), 1 / 30f));
-            if (Main.grayscaleEnabled && Main.grayscaleShader != null && Main.grayscaleShader.isCompiled())
-                stage.getBatch().setShader(Main.grayscaleShader);
-            else
-                stage.getBatch().setShader(null);
+    private boolean shouldRevivePlayer() {
+        return App.loggedInUser.getHealth() == 0
+            && Gdx.input.isKeyPressed(Input.Keys.MINUS)
+            && !extraLifeUsed;
+    }
 
-            stage.draw();
-        } else if (App.loggedInUser.getHealth() == 0 && Gdx.input.isKeyPressed(Input.Keys.MINUS) && !extraLifeUsed) {
-            App.loggedInUser.setHealth(1);
-            extraLifeUsed = true;
-            isLose = false;
-            if (Main.grayscaleEnabled && Main.grayscaleShader != null && Main.grayscaleShader.isCompiled())
-                stage.getBatch().setShader(Main.grayscaleShader);
-            else
-                stage.getBatch().setShader(null);
-            Gdx.input.setInputProcessor(stage);
-        } else if (isLose) {
-            loseStage.act(Math.min(Gdx.graphics.getDeltaTime(), 1 / 30f));
+    private void renderStage(Stage targetStage, float delta) {
+        targetStage.act(delta);
 
-            if (Main.grayscaleEnabled && Main.grayscaleShader != null && Main.grayscaleShader.isCompiled())
-                loseStage.getBatch().setShader(Main.grayscaleShader);
-            else
-                loseStage.getBatch().setShader(null);
-
-            loseStage.draw();
-        } else if (isWin) {
-            winStage.act(Math.min(Gdx.graphics.getDeltaTime(), 1 / 30f));
-
-            if (Main.grayscaleEnabled && Main.grayscaleShader != null && Main.grayscaleShader.isCompiled())
-                winStage.getBatch().setShader(Main.grayscaleShader);
-            else
-                winStage.getBatch().setShader(null);
-
-            winStage.draw();
-        } else if (isRealPause) {
-            realPauseMenuStage.act(Math.min(Gdx.graphics.getDeltaTime(), 1 / 30f));
-
-            if (Main.grayscaleEnabled && Main.grayscaleShader != null && Main.grayscaleShader.isCompiled())
-                realPauseMenuStage.getBatch().setShader(Main.grayscaleShader);
-            else
-                realPauseMenuStage.getBatch().setShader(null);
-
-            realPauseMenuStage.draw();
+        if (Main.grayscaleEnabled && Main.grayscaleShader != null && Main.grayscaleShader.isCompiled()) {
+            targetStage.getBatch().setShader(Main.grayscaleShader);
         } else {
-            pauseStage.act(Math.min(Gdx.graphics.getDeltaTime(), 1 / 30f));
-
-            if (Main.grayscaleEnabled && Main.grayscaleShader != null && Main.grayscaleShader.isCompiled())
-                pauseStage.getBatch().setShader(Main.grayscaleShader);
-            else
-                pauseStage.getBatch().setShader(null);
-
-            pauseStage.draw();
+            targetStage.getBatch().setShader(null);
         }
 
+        targetStage.draw();
     }
+
+    private void revivePlayer() {
+        App.loggedInUser.setHealth(1);
+        extraLifeUsed = true;
+        isLose = false;
+
+        if (Main.grayscaleEnabled && Main.grayscaleShader != null && Main.grayscaleShader.isCompiled()) {
+            stage.getBatch().setShader(Main.grayscaleShader);
+        } else {
+            stage.getBatch().setShader(null);
+        }
+
+        Gdx.input.setInputProcessor(stage);
+    }
+
 
     public void normalMode(float delta) {
         controller.updateGame();

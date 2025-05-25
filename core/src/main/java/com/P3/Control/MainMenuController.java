@@ -35,15 +35,6 @@ public class MainMenuController {
         this.view5 = view;
     }
 
-    public void handleMainMenuButtons() {
-//        if (view != null) {
-//            if (view.getPlayButton().isChecked() && view.getField().getText().equals("kiarash")) {
-//                Main.getMain().getScreen().dispose();
-//                Main.getMain().setScreen(new PreGameMenuView(new PreGameMenuController(), GameAssetManager.getGameAssetManager().getSkin()));
-//            }
-//        }
-    }
-
     public void handleChangUserName() {
         String newName = view3.getNewName().getText();
         if (newName.equals(App.getLoggedInUser().getUsername())) {

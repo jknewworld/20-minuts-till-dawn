@@ -57,9 +57,6 @@ public class PlayerController {
             }
         }
 
-//        if (player.isPlayerIdle()) {
-//            idleAnimation();
-//        }
         if (isMoving()) {
             walkAnimation();
         } else {
@@ -142,19 +139,16 @@ public class PlayerController {
 
         switch (App.loggedInUser.getHero()) {
             case 0:
-               // animation = GameAssetManager.getGameAssetManager().getCharacter0_walk_frames();
                 break;
             case 1:
                 animation = GameAssetManager.getGameAssetManager().getWalk1_frames();
                 break;
             case 2:
-               // animation = GameAssetManager.getGameAssetManager().getCharacter2_walk_frames();
+                animation = GameAssetManager.getGameAssetManager().getWalk2_frames();
                 break;
             case 3:
-                //animation = GameAssetManager.getGameAssetManager().getCharacter3_walk_frames();
                 break;
             case 4:
-               // animation = GameAssetManager.getGameAssetManager().getCharacter4_walk_frames();
                 break;
         }
 

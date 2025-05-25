@@ -14,6 +14,7 @@ import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.Sprite;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
@@ -60,6 +61,12 @@ public class GameController {
     // Elder
     private Elder elder;
     private boolean elderSpawned = false;
+    private Rectangle shieldBounds;
+    private float shieldShrinkTimer = 0f;
+    private final float shieldShrinkInterval = 1f;
+    private final float shieldShrinkAmount = 10f;
+    private boolean shieldActive = false;
+
 
     public GameController() {
 
@@ -99,22 +106,8 @@ public class GameController {
         monsterCount = 0;
 
         // Eye
-        eyes = new Eye[eyeCount];
-        for (int i = 0; i < eyeCount; i++) {
-            eyes[i] = new Eye();
-
-            float x = (float) (Math.random() * worldController.worldWidth);
-            float y = (float) (Math.random() * worldController.worldHeight);
-
-            eyes[i].setX(x);
-            eyes[i].setY(y);
-
-            Sprite s = new Sprite(GameAssetManager.getGameAssetManager().getEye_frames().getKeyFrame(0));
-            s.setPosition(x, y);
-            eyes[i].setPlayerSprite(s);
-        }
-//        eyes = new Eye[0];
-//        eyeCount = 0;
+        eyes = new Eye[0];
+        eyeCount = 0;
 
         // Weapon
         weaponController = new WeaponController(weapon);
@@ -128,161 +121,257 @@ public class GameController {
     }
 
     public void updateGame() {
-        if (view != null) {
-            worldController.update();
-            playerController.update();
-            weaponController.update();
+        if (view == null) return;
 
-            float delta = Gdx.graphics.getDeltaTime();
-            gameTime += delta;
-            spawnTimer += delta;
-            int t = App.loggedInUser.getTime();
+        updateControllers();
+        updateTimers();
 
-            if (gameTime >= MINIMUM_GAME_TIME && spawnTimer >= SPAWN_INTERVAL) {
-                spawnMonster();
-                spawnMonster();
-                spawnMonster();
+        handleMonsterSpawning();
+        handleEyeSpawning();
+        handleEyeShooting();
+
+        handleNearestEnemyAndCursor();
+
+        handleElderSpawnAndBehavior();
+
+        updateGameObjects();
+
+        updateDeadEntities();
+
+        if (shieldActive && elder != null && !elder.isDead()) {
+            shieldShrinkTimer += Gdx.graphics.getDeltaTime();
+
+            if (shieldShrinkTimer >= shieldShrinkInterval) {
+                shieldShrinkTimer = 0;
+
+                shieldBounds.x += shieldShrinkAmount / 2f;
+                shieldBounds.y += shieldShrinkAmount / 2f;
+                shieldBounds.width -= shieldShrinkAmount;
+                shieldBounds.height -= shieldShrinkAmount;
+
+                if (shieldBounds.width < 100 || shieldBounds.height < 100) {
+                    shieldBounds.width = 100;
+                    shieldBounds.height = 100;
+                }
+            }
+
+            Player player = playerController.getPlayer();
+            Rectangle playerBounds = new Rectangle(player.getPosX(), player.getPosY(),
+                player.getPlayerSprite().getWidth(), player.getPlayerSprite().getHeight());
+            if (!shieldBounds.contains(playerBounds)) {
+                player.setPlayerHealth(player.getPlayerHealth() - 1);
+            }
+        }
+
+    }
+
+    private void updateControllers() {
+        worldController.update();
+        playerController.update();
+        weaponController.update();
+    }
+
+    private void updateTimers() {
+        float delta = Gdx.graphics.getDeltaTime();
+        gameTime += delta;
+        spawnTimer += delta;
+        eyeShootTimer += delta;
+    }
+
+    private void handleMonsterSpawning() {
+        int i = (int) gameTime;
+        int spawnRate = i / 30;
+
+        if (spawnRate > 0) {
+            gameTime += Gdx.graphics.getDeltaTime();
+
+            if (spawnTimer >= 0.3f) {
+                for (int j = 0; j < spawnRate; j++) {
+                    spawnMonster();
+                }
                 spawnTimer = 0f;
             }
-//            float eyeSpawnInterval = getEyeSpawnInterval(gameTime, eyeSpawnCount);
-//
-//            if (gameTime >= (float) t / 4) {
-//                for (int i = 0; i < (4f * i - t + 30f) / 30f; i++) {
-//                    spawnEyebat();
-//                    eyeSpawnCount++;
-//                }
-//                spawnTimer = 0f;
-//            }
+        }
+    }
 
-            eyeShootTimer += delta;
-            if (eyeShootTimer >= EYE_SHOOT_INTERVAL) {
-                shootEyesAtPlayer();
-                eyeShootTimer = 0f;
-            }
+    private int ten = 0;
 
-            Monster nearest = null;
-            EnemyBullet nearestBullet = null;
-            float minDistance = Float.MAX_VALUE;
+    private void handleEyeSpawning() {
+        int i = (int) gameTime;
+        int spawnRate = i / 30;
 
-            for (Monster e : monsters) {
-                float dx = Gdx.graphics.getWidth() / 2f - e.getX();
-                float dy = Gdx.graphics.getHeight() / 2f - e.getY();
-                float dist = (float) Math.sqrt(dx * dx + dy * dy);
+        if (gameTime > App.loggedInUser.getMaxTime() / 4) {
+            gameTime += Gdx.graphics.getDeltaTime();
 
-                if (dist < minDistance) {
-                    minDistance = dist;
-                    nearest = e;
+            if (ten % 10 == 0) {
+                for (int j = 0; j < (((4 * gameTime) - App.loggedInUser.getMaxTime() + 30) / 240); j++) {
+                    spawnEye();
                 }
+                spawnTimer = 0f;
             }
-
-            for (EnemyBullet e : enemyBullets) {
-                float dx = Gdx.graphics.getWidth() / 2f - e.getX();
-                float dy = Gdx.graphics.getHeight() / 2f - e.getY();
-                float dist = (float) Math.sqrt(dx * dx + dy * dy);
-
-                if (dist < minDistance) {
-                    minDistance = dist;
-                    nearest = null;
-                    nearestBullet = e;
-                }
-            }
-
-            float radius = 32;
-
-            if (isAutoAimEnabled && nearest != null) {
-                Vector2 enemyPos;
-                if (nearest != null)
-                    enemyPos = new Vector2(nearest.getX(), nearest.getY());
-                else
-                    enemyPos = new Vector2(nearestBullet.getX(), nearestBullet.getY());
-                Vector2 enemyScreenPos = view.worldToScreen(enemyPos);
-                Gdx.input.setCursorPosition((int) enemyScreenPos.x, (int) enemyScreenPos.y);
-
-                if (Math.abs((int) enemyScreenPos.x - enemyScreenPos.x) < radius && Math.abs((int) enemyScreenPos.y - enemyScreenPos.y) < radius) {
-                    Main.setCustomCursor("m2.png");
-                } else {
-                    Main.setCustomCursor("m.png");
-                }
-            } else if (!isAutoAimEnabled) {
-                Main.setCustomCursor("m.png");
-            }
-
-            if ((gameTime > (float) App.loggedInUser.getMaxTime() / 2) && !elderSpawned) {
-                elder = new Elder();
-                elderSpawned = true;
-                elder.setDead(false);
-
-                float x = (float) (100);
-                float y = (float) (1000);
-
-                elder.setX(x);
-                elder.setY(y);
-                Sprite s = new Sprite(GameAssetManager.getGameAssetManager().getElder_frames().getKeyFrame(0));
-                s.setPosition(x, y);
-                elder.setDashing(false);
-                elder.setPlayerSprite(s);
-            }
-
-            if (elderSpawned && !elder.isDead()) {
-                elder.setDashTimer(elder.getDashTimer() + delta);
-
-                if (elder.getDashTimer() >= 5f) {
-                    elder.setDashing(true);
-                    elder.setDashTimer(0);
-                }
-            }
-
-
-            // Player
-            checkPlayerOverlap();
-            checkBulleEnemyCollision();
-            // Tree
-            treeAnimation();
-            renderTrees();
-            // Monster
-            MonsterAnimation();
-            renderMonsters();
-            // Eye
-            renderEyes();
-            eyeAnimation();
-            // Bullets
-            renderBullets();
-            DeathAnimation();
-            // Elder
-            if (elder != null) {
-                elderAnimation();
-                renderElder();
-            }
-            // Update
-            updateDeadMonsters(delta);
-            updateDeadEyes(delta);
-            updateDead(delta);
+            ten++;
         }
     }
 
 
-    private float getEyeSpawnInterval(float t, int i) {
-        if (t > TOTAL_GAME_DURATION / 4f)
-            return 10f;
-
-        return Float.MAX_VALUE;
+    private void handleEyeShooting() {
+        if (eyeShootTimer >= EYE_SHOOT_INTERVAL) {
+            shootEyesAtPlayer();
+            eyeShootTimer = 0f;
+        }
     }
 
-    private void spawnEyebat() {
-        Eye newEye = new Eye();
-        float x = MathUtils.random(worldController.worldWidth);
-        float y = MathUtils.random(worldController.worldHeight);
+    private void handleNearestEnemyAndCursor() {
+        Monster nearest = null;
+        EnemyBullet nearestBullet = null;
+        float minDistance = Float.MAX_VALUE;
 
-        newEye.setX(x);
-        newEye.setY(y);
+        for (Monster e : monsters) {
+            float dx = Gdx.graphics.getWidth() / 2f - e.getX();
+            float dy = Gdx.graphics.getHeight() / 2f - e.getY();
+            float dist = (float) Math.sqrt(dx * dx + dy * dy);
 
-        Sprite s = new Sprite(GameAssetManager.getGameAssetManager().getEye_frames().getKeyFrame(0));
-        s.setPosition(x, y);
-        newEye.setPlayerSprite(s);
+            if (dist < minDistance) {
+                minDistance = dist;
+                nearest = e;
+                nearestBullet = null;
+            }
+        }
 
-        eyes = Arrays.copyOf(eyes, eyes.length + 1);
-        eyes[eyes.length - 1] = newEye;
+        for (EnemyBullet e : enemyBullets) {
+            float dx = Gdx.graphics.getWidth() / 2f - e.getX();
+            float dy = Gdx.graphics.getHeight() / 2f - e.getY();
+            float dist = (float) Math.sqrt(dx * dx + dy * dy);
+
+            if (dist < minDistance) {
+                minDistance = dist;
+                nearest = null;
+                nearestBullet = e;
+            }
+        }
+
+        float radius = 32;
+        if (isAutoAimEnabled && nearest != null) {
+            Vector2 enemyPos = new Vector2(nearest.getX(), nearest.getY());
+            Vector2 enemyScreenPos = view.worldToScreen(enemyPos);
+            Gdx.input.setCursorPosition((int) enemyScreenPos.x, (int) enemyScreenPos.y);
+
+            if (Math.abs((int) enemyScreenPos.x - enemyScreenPos.x) < radius &&
+                Math.abs((int) enemyScreenPos.y - enemyScreenPos.y) < radius) {
+                Main.setCustomCursor("m2.png");
+            } else {
+                Main.setCustomCursor("m.png");
+            }
+        } else if (!isAutoAimEnabled) {
+            Main.setCustomCursor("m.png");
+        }
     }
+
+    private void handleElderSpawnAndBehavior() {
+        float delta = Gdx.graphics.getDeltaTime();
+
+        if ((gameTime > App.loggedInUser.getMaxTime() / 2f) && !elderSpawned) {
+            elder = new Elder();
+            elderSpawned = true;
+            elder.setDead(false);
+
+            float x = 100f;
+            float y = 1000f;
+
+            elder.setX(x);
+            elder.setY(y);
+            Sprite s = new Sprite(GameAssetManager.getGameAssetManager().getElder_frames().getKeyFrame(0));
+            s.setPosition(x, y);
+            elder.setPlayerSprite(s);
+            elder.setDashing(false);
+            elder.setDashTimer(0f);
+        }
+
+        if (elderSpawned && !elder.isDead()) {
+            elder.setDashTimer(elder.getDashTimer() + delta);
+
+            if (elder.getDashTimer() >= 5f) {
+                elder.setDashing(true);
+
+                float playerX = playerController.getPlayer().getPosX();
+                float playerY = playerController.getPlayer().getPosY();
+
+                float elderX = elder.getX();
+                float elderY = elder.getY();
+
+                float dx = playerX - elderX;
+                float dy = playerY - elderY;
+                float length = (float) Math.sqrt(dx * dx + dy * dy);
+                if (length != 0) {
+                    dx /= length;
+                    dy /= length;
+                }
+
+                float dashSpeed = 1600f;
+                elderX += dx * dashSpeed * delta;
+                elderY += dy * dashSpeed * delta;
+
+                elder.setX(elderX);
+                elder.setY(elderY);
+                elder.getPlayerSprite().setPosition(elderX, elderY);
+
+                elder.setDashing(false);
+                elder.setDashTimer(0f);
+            }
+        }
+
+        if ((gameTime > (float) App.loggedInUser.getMaxTime() / 2) && !elderSpawned) {
+            elder = new Elder();
+            elderSpawned = true;
+            elder.setDead(false);
+
+            float x = 100f;
+            float y = 1000f;
+
+            elder.setX(x);
+            elder.setY(y);
+            Sprite s = new Sprite(GameAssetManager.getGameAssetManager().getElder_frames().getKeyFrame(0));
+            s.setPosition(x, y);
+            elder.setPlayerSprite(s);
+            elder.setDashing(false);
+
+            shieldBounds = new Rectangle(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+            shieldActive = true;
+        }
+    }
+
+
+
+
+    private void updateGameObjects() {
+        checkPlayerOverlap();
+        checkBulleEnemyCollision();
+
+        treeAnimation();
+        renderTrees();
+
+        MonsterAnimation();
+        renderMonsters();
+
+        renderEyes();
+        eyeAnimation();
+
+        renderBullets();
+        DeathAnimation();
+
+        if (elder != null) {
+            elderAnimation();
+            renderElder();
+        }
+    }
+
+    private void updateDeadEntities() {
+        float delta = Gdx.graphics.getDeltaTime();
+        updateDeadMonsters(delta);
+        updateDeadEyes(delta);
+        updateDead(delta);
+    }
+
 
     private void shootEyesAtPlayer() {
         for (Eye eye : eyes) {
@@ -375,6 +464,27 @@ public class GameController {
         monsters = currentMonsters.toArray(new Monster[0]);
         monsterCount = monsters.length;
     }
+
+    private void spawnEye() {
+        Eye monster = new Eye();
+
+        float x = (float) (Math.random() * worldController.worldWidth);
+        float y = (float) (Math.random() * worldController.worldHeight);
+
+        monster.setX(x);
+        monster.setY(y);
+        monster.setHP(25);
+
+        Sprite s = new Sprite(GameAssetManager.getGameAssetManager().getEye_frames().getKeyFrame(0));
+        s.setPosition(x, y);
+        monster.setPlayerSprite(s);
+
+        List<Eye> currentMonsters = new ArrayList<>(Arrays.asList(eyes));
+        currentMonsters.add(monster);
+        eyes = currentMonsters.toArray(new Eye[0]);
+        eyeCount = eyes.length;
+    }
+
 
     public void renderTrees() {
         float playerX = playerController.getPlayer().getPosX();
