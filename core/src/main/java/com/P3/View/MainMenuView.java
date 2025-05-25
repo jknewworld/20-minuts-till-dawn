@@ -1,5 +1,6 @@
 package com.P3.View;
 
+import com.P3.Control.GameController;
 import com.P3.Control.PreGameMenuController;
 import com.P3.Control.StartController;
 import com.P3.Model.App;
@@ -204,6 +205,16 @@ public class MainMenuView implements Screen {
                 Main.getMain().setScreen(new ScoreboardView(new MainMenuController(), GameAssetManager.getGameAssetManager().getSkin()));
             }
         });
+
+        saveButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                table.clear();
+                GameController.getInstance().loadGame();
+                Main.getMain().setScreen(new GameView(new GameController(), GameAssetManager.getGameAssetManager().getSkin()));
+            }
+        });
+
 
     }
 

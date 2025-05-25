@@ -3,6 +3,7 @@ package com.P3.View;
 import box2dLight.PointLight;
 import box2dLight.RayHandler;
 import com.P3.Control.PreGameMenuController;
+import com.P3.Control.StartController;
 import com.P3.Model.App;
 import com.P3.Model.GameAssetManager;
 import com.P3.Model.Repo.UserRepo;
@@ -75,18 +76,11 @@ public class GameView implements Screen, InputProcessor {
         this.winSound = Gdx.audio.newSound(Gdx.files.internal("sfx/win.wav"));
         this.levelupSound = Gdx.audio.newSound(Gdx.files.internal("sfx/levelup.wav"));
         this.elapsedTime = 0f;
-        if (App.loggedInUser.getTime() == 2) {
-            this.duration = 120;
-        } else if (App.loggedInUser.getTime() == 5) {
-            this.duration = 300;
-        } else if (App.loggedInUser.getTime() == 10) {
-            this.duration = 600;
-        } else if (App.loggedInUser.getTime() == 20) {
-            this.duration = 1200;
-        }
 
-        timeBar = new ProgressBar(0f, duration, 1f, false, skin.get("mana", ProgressBar.ProgressBarStyle.class));
-        timeBar.setValue(duration);
+        this.duration = App.loggedInUser.getTime();
+
+        timeBar = new ProgressBar(0f, App.loggedInUser.getTime(), 1f, false, skin.get("mana", ProgressBar.ProgressBarStyle.class));
+        timeBar.setValue(App.loggedInUser.getTime());
         timeBar.setAnimateDuration(0.1f);
         timeBar.setWidth(400);
         timeBar.setHeight(300);
@@ -179,23 +173,22 @@ public class GameView implements Screen, InputProcessor {
                 createLoserMenu(GameAssetManager.getGameAssetManager().getSkin());
                 Gdx.input.setInputProcessor(loseStage);
             }
-            //TODO: UNCOMMENT
 
-//            Main.getBatch().setColor(0, 0, 0, 0.4f);
-//            Main.getBatch().draw(darkOverlayTexture, 0, 0, screenWidth, screenHeight);
-//
-//            Main.getBatch().setBlendFunction(GL20.GL_ONE, GL20.GL_ONE);
-//
-//            float centerX = (float) Gdx.graphics.getWidth() / 2;
-//            float centerY = (float) Gdx.graphics.getHeight() / 2;
-//            float radius = 200f;
-//
-//            Main.getBatch().setColor(1, 1, 1, 1f);
-//            Main.getBatch().draw(lightMaskTexture, centerX - radius, centerY - radius +50, radius * 2, radius * 2);
-//
-//            Main.getBatch().setBlendFunction(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
-//
-//            Main.getBatch().setColor(1, 1, 1, 1f);
+            Main.getBatch().setColor(0, 0, 0, 0.4f);
+            Main.getBatch().draw(darkOverlayTexture, 0, 0, screenWidth, screenHeight);
+
+            Main.getBatch().setBlendFunction(GL20.GL_ONE, GL20.GL_ONE);
+
+            float centerX = (float) Gdx.graphics.getWidth() / 2;
+            float centerY = (float) Gdx.graphics.getHeight() / 2;
+            float radius = 200f;
+
+            Main.getBatch().setColor(1, 1, 1, 1f);
+            Main.getBatch().draw(lightMaskTexture, centerX - radius, centerY - radius +50, radius * 2, radius * 2);
+
+            Main.getBatch().setBlendFunction(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
+
+            Main.getBatch().setColor(1, 1, 1, 1f);
 
             if (isLevelUp == 1) {
                 isPaused = true;
@@ -501,17 +494,6 @@ public class GameView implements Screen, InputProcessor {
         else
             saveButton = new TextButton("Sauvegarder", skin);
 
-        saveButton.addListener(new ClickListener() {
-            @Override
-            public void clicked(InputEvent event, float x, float y) {
-                FileHandle folder = Gdx.files.local("SaveGame");
-                if (!folder.exists()) {
-                    folder.mkdirs();
-                }
-
-
-            }
-        });
 
         backButton.addListener(new ClickListener() {
             @Override
@@ -537,8 +519,11 @@ public class GameView implements Screen, InputProcessor {
                 Gdx.input.setInputProcessor(multiplexer);
 
                 App.loggedInUser.setTime((int) timeBar.getValue());
+                App.loggedInUser.setScore(App.loggedInUser.getKill() * ((int) (finalElapsedTime)));
+
                 controller.saveGame();
 
+                Main.getMain().setScreen(new PreGameView(new PreGameMenuController(), GameAssetManager.getGameAssetManager().getSkin()));
             }
         });
 

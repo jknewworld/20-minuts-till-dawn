@@ -9,7 +9,6 @@ import com.P3.Model.Save.MonsterData;
 import com.P3.Model.Save.TreeData;
 import com.P3.View.GameView;
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Texture;
@@ -17,7 +16,6 @@ import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
-import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Json;
 import com.badlogic.gdx.utils.TimeUtils;
 
@@ -26,41 +24,59 @@ import java.util.Arrays;
 import java.util.List;
 
 public class GameController {
+
+    // View
     private GameView view;
     private PlayerController playerController;
     private WorldController worldController;
     private static WeaponController weaponController;
+    private boolean ability3Active = false;
+    private long ability3StartTime = 0;
+    private Sound damageSound = Gdx.audio.newSound(Gdx.files.internal("sfx/damage.wav"));
+    private static GameController instance;
+
+    // Tree
     public static Tree[] trees;
     public static int treeCount = 20;
+    // Monster
     public static Monster[] monsters;
     public static int monsterCount = 10;
-    public static Eye[] eyes;
-    public static int eyeCount = 10;
     private float spawnTimer = 0f;
     private float gameTime = 0f;
     private final float SPAWN_INTERVAL = 3f;
     private final float MINIMUM_GAME_TIME = 7f / 30f;
+
+    // EyeBat
+    public static Eye[] eyes;
+    public static int eyeCount = 10;
     private float eyeShootTimer = 0f;
     private final float EYE_SHOOT_INTERVAL = 20f;
     private List<EnemyBullet> enemyBullets = new ArrayList<>();
-    private boolean ability3Active = false;
-    private long ability3StartTime = 0;
     private int eyeSpawnCount = 0;
     private final float TOTAL_GAME_DURATION = App.loggedInUser.getTime();
-    private Sound damageSound = Gdx.audio.newSound(Gdx.files.internal("sfx/damage.wav"));
 
-
+    // Elder
     private Elder elder;
 
+    public GameController() {
+
+    }
+
+
     public void setView(GameView view) {
+        // View
         this.view = view;
         playerController = new PlayerController(new Player(), GameController.this);
         worldController = new WorldController(playerController);
+
+        //Weapon
         Weapon weapon = null;
         int userChoice = App.loggedInUser.getWeapon();
         if (userChoice == 0) weapon = new Weapon(WeaponType.DUAL_SMG);
         else if (userChoice == 1) weapon = new Weapon(WeaponType.SHOTGUN);
         else if (userChoice == 2) weapon = new Weapon(WeaponType.REVOLVER);
+
+        //Tree
         trees = new Tree[treeCount];
         for (int i = 0; i < treeCount; i++) {
             trees[i] = new Tree();
@@ -76,9 +92,11 @@ public class GameController {
             trees[i].setPlayerSprite(s);
         }
 
+        //Monster
         monsters = new Monster[0];
         monsterCount = 0;
 
+        // Eye
         eyes = new Eye[eyeCount];
         for (int i = 0; i < eyeCount; i++) {
             eyes[i] = new Eye();
@@ -96,6 +114,7 @@ public class GameController {
 //        eyes = new Eye[0];
 //        eyeCount = 0;
 
+        // Elder
         this.elder = new Elder();
         float x = (float) (Math.random() * worldController.worldWidth);
         float y = (float) (Math.random() * worldController.worldHeight);
@@ -105,7 +124,15 @@ public class GameController {
         s.setPosition(x, y);
         elder.setPlayerSprite(s);
 
+        // Weapon
         weaponController = new WeaponController(weapon);
+    }
+
+    public static GameController getInstance() {
+        if (instance == null) {
+            instance = new GameController();
+        }
+        return instance;
     }
 
     public void updateGame() {
@@ -124,14 +151,14 @@ public class GameController {
                 spawnMonster();
                 spawnTimer = 0f;
             }
-//            float eyeSpawnInterval = getEyeSpawnInterval(gameTime, eyeSpawnCount);
-//
-//            if (spawnTimer >= eyeSpawnInterval) {
-//                // for(int i = 0; i < (4f * i - t + 30f) / 30f;; i++) {}
-//                spawnEyebat();
-//                eyeSpawnCount++;
-//                spawnTimer = 0f;
-//            }
+            float eyeSpawnInterval = getEyeSpawnInterval(gameTime, eyeSpawnCount);
+
+            if (spawnTimer >= eyeSpawnInterval) {
+                // for(int i = 0; i < (4f * i - t + 30f) / 30f;; i++) {}
+                spawnEyebat();
+                eyeSpawnCount++;
+                spawnTimer = 0f;
+            }
 
             eyeShootTimer += delta;
             if (eyeShootTimer >= EYE_SHOOT_INTERVAL) {
@@ -139,83 +166,27 @@ public class GameController {
                 eyeShootTimer = 0f;
             }
 
-            checkPlayerTreeCollision();//Player
-            checkBulletMonsterCollision();// Monster
-            treeAnimation();// Tree
-            renderTrees();// Tree
-            treeMonster();//Monster
-            renderMonsters();//Monster
-            renderEyes();// Eye
-            eyeAnimation();// Eye
-            renderBullets();// Bullets
-            DeathAnimation();// Bomb
-            elderAnimation();// Elder
-
-
+            // Player
+            checkPlayerOverlap();
+            // Tree
+            treeAnimation();
+            renderTrees();
+            // Monster
+            checkBulletMonsterCollision();
+            MonsterAnimation();
+            renderMonsters();
+            // Eye
+            renderEyes();
+            eyeAnimation();
+            // Bullets
+            renderBullets();
+            DeathAnimation();
+            // Elder
+            elderAnimation();
+            // Update
             updateDeadMonsters(delta);
             updateDeadEyes(delta);
             updateDead(delta);
-
-            float mouseX = Gdx.input.getX();
-            float mouseY = Gdx.graphics.getHeight() - Gdx.input.getY();
-
-
-//            for (Monster enemy : monsters) {
-//                if (!enemy.isDead()) {
-//                    float ex = enemy.getX();
-//                    float ey = enemy.getY();
-//                    float ew = enemy.getPlayerSprite().getWidth();  // یا enemy.getSprite().getWidth()
-//                    float eh = enemy.getPlayerSprite().getHeight(); // یا enemy.getSprite().getHeight()
-//
-//                    if (mouseX >= ex && mouseX <= ex + ew &&
-//                        mouseY >= ey && mouseY <= ey + eh) {
-//                        App.getLoggedInUser().setHeavy(true);
-//                        Main.setCustomCursor();
-//                        break;
-//                    } else {
-//                        App.getLoggedInUser().setHeavy(false);
-//                        Main.setCustomCursor();
-//                    }
-//                }
-//            }
-
-//            for (Tree enemy : trees) {
-//                float ex = enemy.getX();
-//                float ey = enemy.getY();
-//                float ew = enemy.getPlayerSprite().getWidth();
-//                float eh = enemy.getPlayerSprite().getHeight();
-//
-//                if (mouseX >= ex && mouseX <= ex + ew &&
-//                    mouseY >= ey && mouseY <= ey + eh) {
-//                    App.getLoggedInUser().setHeavy(true);
-//                    Main.setCustomCursor();
-//                    break;
-//                } else {
-//                    App.getLoggedInUser().setHeavy(false);
-//                    Main.setCustomCursor();
-//                }
-//
-//            }
-
-//            for (Eye enemy : eyes) {
-//                if (!enemy.isDead()) {
-//                    float ex = enemy.getX();
-//                    float ey = enemy.getY();
-//                    float ew = enemy.getPlayerSprite().getWidth();  // یا enemy.getSprite().getWidth()
-//                    float eh = enemy.getPlayerSprite().getHeight(); // یا enemy.getSprite().getHeight()
-//
-//                    if (mouseX >= ex && mouseX <= ex + ew &&
-//                        mouseY >= ey && mouseY <= ey + eh) {
-//                        App.getLoggedInUser().setHeavy(true);
-//                        Main.setCustomCursor2();
-//                        break;
-//                    } else {
-//                        App.getLoggedInUser().setHeavy(false);
-//                        Main.setCustomCursor();
-//                    }
-//                }
-//            }
-
         }
     }
 
@@ -243,8 +214,6 @@ public class GameController {
     }
 
     private void shootEyesAtPlayer() {
-        float pX = playerController.getPlayer().getPosX();
-        float pY = playerController.getPlayer().getPosY();
         for (Eye eye : eyes) {
             if (!eye.isDead()) {
                 EnemyBullet bullet = new EnemyBullet();
@@ -254,9 +223,6 @@ public class GameController {
 
                 float playerX = Gdx.graphics.getWidth() / 2f;
                 float playerY = Gdx.graphics.getHeight() / 2f;
-
-//                float playerX = playerController.getPlayer().getPosX();
-//                float playerY = playerController.getPlayer().getPosY();
 
                 float dx = playerX - eyeX;
                 float dy = playerY - eyeY;
@@ -276,14 +242,6 @@ public class GameController {
     }
 
     public void renderBullets() {
-//        float playerX = playerController.getPlayer().getPosX();
-//        float playerY = playerController.getPlayer().getPosY();
-
-        float playerX = playerController.getPlayer().getPlayerSprite().getX();
-        float playerY = playerController.getPlayer().getPlayerSprite().getY();
-        float pX = (float) Gdx.graphics.getWidth() / 2;
-        float pY = (float) Gdx.graphics.getHeight() / 2;
-
         for (EnemyBullet enemyBullet : enemyBullets) {
             if (enemyBullet != null) {
 
@@ -302,9 +260,6 @@ public class GameController {
     }
 
     public void moveEnemyTowardsPlayer(EnemyBullet bullet) {
-//        float playerX = (float) Gdx.graphics.getWidth() / 2;
-//        float playerY = (float) Gdx.graphics.getHeight() / 2;
-
         float playerX = playerController.getPlayer().getPlayerSprite().getX();
         float playerY = playerController.getPlayer().getPlayerSprite().getY();
 
@@ -354,13 +309,40 @@ public class GameController {
         float playerY = playerController.getPlayer().getPosY();
 
         for (Tree tree : trees) {
-            float drawX = tree.getX() + playerX;
-            float drawY = tree.getY() + playerY;
+            moveTreesTowardsPlayer(tree);
+
+            float drawX = tree.getX();
+            float drawY = tree.getY();
 
             tree.getPlayerSprite().setScale(1.5f);
             tree.getPlayerSprite().setPosition(drawX, drawY);
             tree.getPlayerSprite().draw(Main.getBatch());
         }
+    }
+
+    public void moveTreesTowardsPlayer(Tree tree) {
+        float playerX = (float) Gdx.graphics.getWidth() / 2;
+        float playerY = (float) Gdx.graphics.getHeight() / 2;
+
+        float treeX = tree.getX();
+        float treeY = tree.getY();
+
+        float dx = playerX - treeX;
+        float dy = playerY - treeY;
+
+        float length = (float) Math.sqrt(dx * dx + dy * dy);
+        if (length != 0) {
+            dx /= length;
+            dy /= length;
+        }
+
+        float speed = 2f;
+        float delta = Gdx.graphics.getDeltaTime();
+        float pX = playerController.getPlayer().getPosX();
+        float pY = playerController.getPlayer().getPosY();
+
+        tree.setX(treeX + dx * speed * delta);
+        tree.setY(treeY + dy * speed * delta);
     }
 
     public void renderEyes() {
@@ -455,7 +437,7 @@ public class GameController {
 
     }
 
-    public void treeMonster() {
+    public void MonsterAnimation() {
         Animation<Texture> animation = GameAssetManager.getGameAssetManager().getMonster_frames();
         animation.setPlayMode(Animation.PlayMode.LOOP);
         Animation<Texture> death = GameAssetManager.getGameAssetManager().getDeath_frames();
@@ -550,8 +532,6 @@ public class GameController {
     public void moveMonstersTowardsPlayer(Monster monster) {
         float playerX = (float) Gdx.graphics.getWidth() / 2;
         float playerY = (float) Gdx.graphics.getHeight() / 2;
-//        float playerX = playerController.getPlayer().getPosX();
-//        float playerY = playerController.getPlayer().getPosY();
 
         float monsterX = monster.getX();
         float monsterY = monster.getY();
@@ -583,7 +563,7 @@ public class GameController {
 
     private long lastCollisionTime = -1;
 
-    private void checkPlayerTreeCollision() {
+    private void checkPlayerOverlap() {
         long currentTime = System.currentTimeMillis();
         if (lastCollisionTime > 0 && currentTime - lastCollisionTime < 5000) return;
 
